@@ -4,12 +4,37 @@ from __future__ import annotations
 
 import asyncio
 import json
+import time
 from typing import Any
 
 from pydantic import BaseModel
 
 from lithic.compression.headroom_adapter import HeadroomAdapter
 from lithic.orchestrator import Orchestrator
+
+_MAX_INPUT_CHARS = 100_000
+_MAX_CALLS_PER_WINDOW = 60
+_WINDOW_SEC = 60.0
+
+_QUERY_SIZE_LIMIT = 2000
+_COMPRESS_SIZE_LIMIT = 500_000
+
+
+class _RateLimiter:
+    def __init__(self, max_calls: int = _MAX_CALLS_PER_WINDOW, window: float = _WINDOW_SEC):
+        self.max_calls = max_calls
+        self.window = window
+        self._calls: list[float] = []
+
+    def check(self) -> None:
+        now = time.monotonic()
+        cutoff = now - self.window
+        self._calls = [t for t in self._calls if t > cutoff]
+        if len(self._calls) >= self.max_calls:
+            raise RuntimeError(
+                f"rate limit exceeded ({self.max_calls} calls per {self.window:.0f}s)"
+            )
+        self._calls.append(now)
 
 
 class QueryInput(BaseModel):
@@ -43,6 +68,12 @@ def _tool_result(text: str) -> list[Any]:
     return [TextContent(type="text", text=text)]
 
 
+def _check_input_size(value: str, max_chars: int, label: str) -> str:
+    if len(value) > max_chars:
+        raise ValueError(f"{label} exceeds {max_chars} character limit")
+    return value
+
+
 def build_server() -> Any:
     """Build an MCP stdio server for Lithic tools."""
     try:
@@ -54,6 +85,7 @@ def build_server() -> Any:
     server = Server("lithic")
     orch = Orchestrator()
     compressor = HeadroomAdapter()
+    limiter = _RateLimiter()
 
     @server.list_tools()
     async def list_tools() -> list[Any]:
@@ -86,16 +118,25 @@ def build_server() -> Any:
     @server.call_tool()
     async def call_tool(name: str, arguments: dict[str, Any] | None = None) -> list[Any]:
         args = arguments or {}
+        for v in args.values():
+            if isinstance(v, str) and len(v) > _MAX_INPUT_CHARS:
+                return _tool_result(f"error: input exceeds {_MAX_INPUT_CHARS} chars")
         try:
+            limiter.check()
             if name == "lithic_graph_query":
-                return _tool_result(orch.ask(QueryInput(**args).question))
+                q = _check_input_size(QueryInput(**args).question, _QUERY_SIZE_LIMIT, "question")
+                return _tool_result(orch.ask(q))
             if name == "lithic_graph_explain":
-                return _tool_result(orch.explain(ExplainInput(**args).concept))
+                c = _check_input_size(ExplainInput(**args).concept, _QUERY_SIZE_LIMIT, "concept")
+                return _tool_result(orch.explain(c))
             if name == "lithic_graph_path":
                 data = PathInput(**args)
+                _check_input_size(data.source, _QUERY_SIZE_LIMIT, "source")
+                _check_input_size(data.target, _QUERY_SIZE_LIMIT, "target")
                 return _tool_result(orch.path_between(data.source, data.target))
             if name == "lithic_compress":
-                return _tool_result(compressor.compress_text(CompressInput(**args).text))
+                t = _check_input_size(CompressInput(**args).text, _COMPRESS_SIZE_LIMIT, "text")
+                return _tool_result(compressor.compress_text(t))
             if name == "lithic_review":
                 return _tool_result(orch.review())
             if name == "lithic_commit":

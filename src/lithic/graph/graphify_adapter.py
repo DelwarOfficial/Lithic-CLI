@@ -6,6 +6,7 @@ import json
 import os
 import shlex
 import shutil
+import stat
 import subprocess
 from pathlib import Path
 
@@ -115,8 +116,24 @@ class GraphifyAdapter:
                 f"graph output dir must stay inside project root: {self.graph_output_dir}"
             ) from exc
         if self.graph_output_dir.exists():
-            shutil.rmtree(self.graph_output_dir)
+            self._rmtree_safe(self.graph_output_dir)
         self.graph_output_dir.mkdir(parents=True, exist_ok=True)
+
+    @staticmethod
+    def _rmtree_safe(path: Path) -> None:
+        """Remove a directory tree, refusing to follow symlinks."""
+        for entry in path.rglob("*"):
+            if entry.is_symlink():
+                raise RuntimeError(f"refusing to follow symlink during rmtree: {entry}")
+        for entry in path.rglob("*"):
+            try:
+                if entry.is_dir():
+                    entry.chmod(entry.stat().st_mode | stat.S_IWRITE)
+                else:
+                    entry.chmod(entry.stat().st_mode | stat.S_IWRITE)
+            except Exception:
+                pass
+        shutil.rmtree(path, onexc=lambda *a: None)
 
     def _graph_arg(self) -> str:
         try:
@@ -127,8 +144,7 @@ class GraphifyAdapter:
     def _run(self, args: list[str], timeout: int = 120) -> str:
         exe = shutil.which(args[0])
         command = args if exe is not None else ["uv", "run", *args]
-        env = os.environ.copy()
-        env["GRAPHIFY_OUT"] = str(self.graph_output_dir)
+        env = {"PATH": os.environ.get("PATH", ""), "GRAPHIFY_OUT": str(self.graph_output_dir)}
         try:
             result = subprocess.run(
                 command,
