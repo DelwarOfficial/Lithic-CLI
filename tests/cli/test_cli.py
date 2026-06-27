@@ -63,3 +63,53 @@ def test_lithic_package_entrypoint(monkeypatch) -> None:
     result = CliRunner().invoke(lithic_cli.main, ["ask", "how auth works?"])
     assert result.exit_code == 0
     assert "answer" in result.output
+
+
+def test_global_provider_options_override_config(monkeypatch) -> None:
+    captured = {}
+
+    class FakeOrchestrator:
+        def __init__(self, config):
+            captured["config"] = config
+
+        def ask(self, question):
+            return "answer"
+
+    monkeypatch.setattr(lithic_cli, "Orchestrator", FakeOrchestrator)
+    result = CliRunner().invoke(
+        main,
+        ["--provider", "anthropic", "--model", "claude-test", "--mode", "normal", "ask", "q"],
+    )
+
+    assert result.exit_code == 0
+    assert captured["config"].provider == "anthropic"
+    assert captured["config"].model == "claude-test"
+    assert captured["config"].response_mode == "normal"
+
+
+def test_invalid_mode_option_rejected() -> None:
+    result = CliRunner().invoke(main, ["--mode", "bad", "ask", "q"])
+    assert result.exit_code != 0
+    assert "unknown response mode" in result.output
+
+
+def test_mcp_without_subcommand_invokes_server(monkeypatch) -> None:
+    import lithic.mcp.server as mcp_server
+
+    called = {"serve": False}
+    monkeypatch.setattr(mcp_server, "serve", lambda: called.update(serve=True))
+    result = CliRunner().invoke(main, ["mcp"])
+
+    assert result.exit_code == 0
+    assert called["serve"] is True
+
+
+def test_mcp_serve_invokes_server(monkeypatch) -> None:
+    import lithic.mcp.server as mcp_server
+
+    called = {"serve": False}
+    monkeypatch.setattr(mcp_server, "serve", lambda: called.update(serve=True))
+    result = CliRunner().invoke(main, ["mcp", "serve"])
+
+    assert result.exit_code == 0
+    assert called["serve"] is True

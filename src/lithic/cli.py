@@ -42,14 +42,17 @@ def main(ctx: click.Context, verbose: bool, provider: str | None,
     if graph_dir is not None:
         overrides["graph_output_dir"] = graph_dir.resolve()
     if overrides:
-        config = AgentConfig(
-            project_root=config.project_root,
-            graph_output_dir=overrides.get("graph_output_dir", config.graph_output_dir),  # type: ignore[arg-type]
-            provider=str(overrides.get("provider", config.provider)),
-            model=str(overrides.get("model", config.model)),
-            response_mode=str(overrides.get("response_mode", config.response_mode)),
-            verbose=bool(overrides.get("verbose", config.verbose)),
-        )
+        try:
+            config = AgentConfig(
+                project_root=config.project_root,
+                graph_output_dir=overrides.get("graph_output_dir", config.graph_output_dir),  # type: ignore[arg-type]
+                provider=str(overrides.get("provider", config.provider)),
+                model=str(overrides.get("model", config.model)),
+                response_mode=str(overrides.get("response_mode", config.response_mode)),
+                verbose=bool(overrides.get("verbose", config.verbose)),
+            )
+        except ValueError as exc:
+            raise click.ClickException(str(exc)) from exc
     ctx.obj["orchestrator"] = Orchestrator(config)
 
 
@@ -150,7 +153,7 @@ def upstream_status(local_only: bool) -> None:
         console.print(line)
 
 
-@main.group()
+@main.group(invoke_without_command=True)
 @click.pass_context
 def mcp(ctx: click.Context) -> None:
     """Manage the Lithic MCP server."""

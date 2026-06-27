@@ -2,11 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 from lithic.config import AgentConfig
 
 _PROVIDER_MAP: dict[str, type[Any]] = {}
+_DEFAULT_MODEL = "gpt-4.1-mini"
+_PROVIDER_DEFAULT_MODELS = {
+    "anthropic": "claude-3-5-sonnet-latest",
+    "ollama": "llama3.1",
+    "openai": _DEFAULT_MODEL,
+    "openrouter": "openai/gpt-4.1-mini",
+}
 
 
 def _init_provider_map() -> None:
@@ -48,7 +55,10 @@ class LLMService:
         ptype = _PROVIDER_MAP.get(self.config.provider)
         if ptype is None:
             return None
-        self._provider = ptype(model=self.config.model)
+        model = self.config.model
+        if model == _DEFAULT_MODEL:
+            model = _PROVIDER_DEFAULT_MODELS.get(self.config.provider, model)
+        self._provider = ptype(model=model)
         return self._provider
 
     def complete(self, messages: list[dict[str, Any]], **kwargs: Any) -> str:
@@ -58,7 +68,7 @@ class LLMService:
                 f"no provider for '{self.config.provider}' "
                 f"(valid: {list(_PROVIDER_MAP) or 'none'})"
             )
-        return p.complete(messages, **kwargs)
+        return cast(str, p.complete(messages, **kwargs))
 
     @staticmethod
     def available() -> list[str]:

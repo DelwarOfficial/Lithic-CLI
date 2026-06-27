@@ -45,9 +45,9 @@ User (CLI or MCP)
 
 - Subprocess commands use list form (no `shell=True`).
 - `resolve_path_within_root()` constrains file access to project root.
-- `_reset_output_dir()` rejects `graph_output_dir == project_root`.
-- `_rmtree_safe()` checks symlinks at deletion time (no TOCTOU window).
-- Destructive shell commands blocked via token-pair rules.
+- `_reset_output_dir()` only cleans dedicated, marked graph output directories.
+- `_rmtree_safe()` checks symlinks immediately before each deletion.
+- Destructive shell commands blocked via structured command rules.
 - MCP rate-limited (60 req/60s, configurable via `LITHIC_MCP_*` env vars).
 - Audit logs redact API keys, tokens, and secrets before writing.
 - MCP errors return sanitized messages; details logged separately.

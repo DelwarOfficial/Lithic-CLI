@@ -33,6 +33,12 @@ class AgentConfig:
     response_mode: str = "concise"
     verbose: bool = False
 
+    def __post_init__(self) -> None:
+        if self.response_mode not in _VALID_MODES:
+            raise ValueError(
+                f"unknown response mode: {self.response_mode!r} (valid: {sorted(_VALID_MODES)})"
+            )
+
     @classmethod
     def from_env(cls, project_root: Path | None = None) -> AgentConfig:
         """Load config from process env and optional local `.env`.

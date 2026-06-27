@@ -5,11 +5,12 @@
 ### Installation
 
 ```bash
-# Install via pip (recommended)
-pip install lithic-cli
+# Install from source
+git clone https://github.com/DelwarOfficial/Lithic-CLI.git
+cd Lithic-CLI
+uv sync
 
-# Or via Homebrew (if available)
-brew install lithic-cli
+# pip install lithic-cli and brew install lithic-cli are planned
 ```
 
 ### Keyboard Shortcuts
@@ -29,9 +30,9 @@ brew install lithic-cli
 - **Virtual environment**: Recommended to avoid dependency conflicts
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install lithic-cli
+git clone https://github.com/DelwarOfficial/Lithic-CLI.git
+cd Lithic-CLI
+uv sync
 ```
 
 ---
@@ -41,11 +42,10 @@ pip install lithic-cli
 ### Installation
 
 ```powershell
-# Install via pip (recommended)
-pip install lithic-cli
-
-# Verify installation
-lithic --version
+# Install from source
+git clone https://github.com/DelwarOfficial/Lithic-CLI.git
+cd Lithic-CLI
+uv sync
 ```
 
 ### Keyboard Shortcuts
@@ -65,9 +65,9 @@ lithic --version
 - **Virtual environment**: Use PowerShell for best experience
 
 ```powershell
-python -m venv venv
-.\venv\Scripts\Activate
-pip install lithic-cli
+git clone https://github.com/DelwarOfficial/Lithic-CLI.git
+cd Lithic-CLI
+uv sync
 ```
 
 ---
@@ -77,7 +77,7 @@ pip install lithic-cli
 ### Pre-Installation Checklist
 
 - [ ] Python 3.12+ installed
-- [ ] `pip` is up-to-date (`pip install --upgrade pip`)
+- [ ] `uv` is installed (`pip install uv` or `winget install astral.uv`)
 - [ ] Internet connection for first-time install
 
 ### Troubleshooting

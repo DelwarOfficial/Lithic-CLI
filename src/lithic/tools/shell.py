@@ -13,31 +13,6 @@ from lithic.tools.audit import subprocess as audit_subprocess
 class CommandError(RuntimeError):
     """Raised when a shell command fails, times out, or is destructive."""
 
-_DESTRUCTIVE_RULES: set[tuple[str, str]] = {
-    ("rm", "-rf"),
-    ("rm", "-r"),
-    ("rm", "-fr"),
-    ("rmdir", "/s"),
-    ("rd", "/s"),
-    ("del", "/s"),
-    ("del", "/f"),
-    ("del", "/q"),
-    ("deltree", ""),
-    ("git", "reset"),
-    ("git", "clean"),
-    ("git", "checkout"),
-    ("git", "branch -D"),
-    ("git", "push --force"),
-    ("git", "push -f"),
-    ("drop", "table"),
-    ("drop", "database"),
-    ("format", "volume"),
-    ("remove-item", ""),
-    ("truncate", ""),
-    ("fsutil", "file setzerodata"),
-    ("copy", "nul"),
-}
-
 _DANGEROUS_PYTHON_KEYWORDS = {"shutil", "rmtree", "os.remove", "os.unlink", "send2trash"}
 
 
@@ -46,14 +21,43 @@ def _is_destructive(command: list[str]) -> bool:
         return False
     cmd0 = os.path.splitext(os.path.basename(command[0]).lower())[0]
     args_lower = [a.lower() for a in command[1:]]
-    for base, flag in _DESTRUCTIVE_RULES:
-        if cmd0 == base:
-            if not flag:
-                return True
-            if any(flag in arg for arg in args_lower):
-                return True
+    joined = " ".join(args_lower)
+    if cmd0 == "rm":
+        return any(
+            arg in {"-r", "-rf", "-fr", "--recursive"}
+            or (arg.startswith("-") and "r" in arg.replace("-", ""))
+            for arg in args_lower
+        )
+    if cmd0 in {"rmdir", "rd"}:
+        return any(arg == "/s" for arg in args_lower)
+    if cmd0 == "del":
+        return any(arg in {"/s", "/f", "/q"} for arg in args_lower)
+    if cmd0 in {"deltree", "remove-item", "truncate"}:
+        return True
+    if cmd0 == "git":
+        subcommand = args_lower[0] if args_lower else ""
+        if subcommand in {"reset", "clean"}:
+            return True
+        if subcommand == "checkout" and "--" in args_lower:
+            return True
+        if subcommand == "branch" and any(arg == "-d" for arg in args_lower):
+            return True
+        if subcommand == "push" and any(
+            arg in {"--force", "--force-with-lease", "-f"} for arg in args_lower
+        ):
+            return True
+    if cmd0 == "drop" and any(arg in {"table", "database"} for arg in args_lower):
+        return True
+    if cmd0 == "format" and "volume" in args_lower:
+        return True
+    if cmd0 == "fsutil" and "file setzerodata" in joined:
+        return True
+    if cmd0 == "copy" and "nul" in args_lower:
+        return True
+    if cmd0 in {"cmd", "powershell", "pwsh"}:
+        if any(term in joined for term in (" del ", " rd ", " rmdir ", "remove-item")):
+            return True
     if cmd0 in {"python", "python3", "uv"}:
-        joined = " ".join(args_lower)
         if any(kw in joined for kw in _DANGEROUS_PYTHON_KEYWORDS):
             return True
     return False

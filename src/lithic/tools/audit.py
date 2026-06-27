@@ -15,10 +15,17 @@ F = TypeVar("F", bound=Callable[..., Any])
 _LOG = logging.getLogger("lithic.audit")
 _LOG_HANDLER: logging.Handler | None = None
 
-_SECRET_RE = re.compile(
+_SECRET_KEY_RE = re.compile(
     r"(?i)(api[_-]?key|token|secret|password|authorization|bearer|auth[_-]?token)"
-    r"\s*[:=]\s*['\"]?[\w\-]+"
 )
+_SECRET_ASSIGNMENT_RE = re.compile(
+    r"(?i)\b(api[_-]?key|token|secret|password|auth[_-]?token)\b"
+    r"(\s*[:=]\s*['\"]?)([^\s'\",}]+)"
+)
+_AUTH_HEADER_RE = re.compile(
+    r"(?i)\bauthorization(\s*[:=]\s*)(?:bearer\s+)?[^\s'\",}]+"
+)
+_BEARER_RE = re.compile(r"(?i)\bbearer\s+[A-Za-z0-9._~+\-/]+=*")
 
 
 def _setup() -> None:
@@ -38,7 +45,9 @@ def _setup() -> None:
 
 
 def _redact(value: str) -> str:
-    return _SECRET_RE.sub(lambda m: m.group(0).split("=")[0] + "=***", value)
+    redacted = _AUTH_HEADER_RE.sub(lambda m: f"Authorization{m.group(1)}***", value)
+    redacted = _SECRET_ASSIGNMENT_RE.sub(lambda m: f"{m.group(1)}{m.group(2)}***", redacted)
+    return _BEARER_RE.sub("Bearer ***", redacted)
 
 
 def _redact_obj(obj: object) -> object:
@@ -47,7 +56,10 @@ def _redact_obj(obj: object) -> object:
     if isinstance(obj, list):
         return [_redact_obj(i) for i in obj]
     if isinstance(obj, dict):
-        return {k: _redact_obj(v) for k, v in obj.items()}
+        return {
+            k: "***" if _SECRET_KEY_RE.search(str(k)) else _redact_obj(v)
+            for k, v in obj.items()
+        }
     return obj
 
 

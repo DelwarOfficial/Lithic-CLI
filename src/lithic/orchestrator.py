@@ -63,7 +63,7 @@ class Orchestrator:
             {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {task}"},
         ]
         try:
-            return p.complete(messages)
+            return self._llm.complete(messages)
         except RuntimeError:
             return context
 

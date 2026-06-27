@@ -19,6 +19,8 @@ jobs:
         run: uv sync --group dev
       - name: Lint
         run: uv run ruff check src/lithic/ tests/
+      - name: Typecheck
+        run: uv run mypy src/lithic/
 
   test:
     runs-on: ubuntu-latest

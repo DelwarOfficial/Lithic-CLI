@@ -287,7 +287,7 @@ uv run lithic commit
 Start the MCP server:
 
 ```powershell
-uv run lithic mcp
+uv run lithic mcp serve
 ```
 
 ## CLI Commands
@@ -306,7 +306,7 @@ All commands are optimized for minimal token usage (~0.1-3K per call, compressio
 | `lithic compress-file <file>` | Compress large text output safely |
 | `lithic stats` | Show graph and compression runtime stats |
 | `lithic upstream-status` | Check pinned upstream submodules against their remotes |
-| `lithic mcp` | Serve Lithic MCP tools over stdio |
+| `lithic mcp serve` | Serve Lithic MCP tools over stdio |
 
 ## Configuration
 
