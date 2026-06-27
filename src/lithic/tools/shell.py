@@ -57,6 +57,7 @@ def run(command: list[str], cwd: Path, timeout: int = 60) -> str:
     output = ((result.stdout or "") + (result.stderr or "")).strip()
     if result.returncode != 0:
         audit_subprocess(command, result.returncode, elapsed, output[:500])
-        raise RuntimeError(output or "command failed")
+        msg = (output[:2000] + "...") if len(output) > 2000 else (output or "command failed")
+        raise RuntimeError(msg)
     audit_subprocess(command, result.returncode, elapsed)
     return output

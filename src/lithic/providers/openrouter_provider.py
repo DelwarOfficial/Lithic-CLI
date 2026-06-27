@@ -31,4 +31,6 @@ class OpenRouterProvider(BaseProvider):
             messages=cast(Any, messages),
             **kwargs,
         )
+        if not response.choices:
+            raise RuntimeError("OpenRouter returned no completions")
         return response.choices[0].message.content or ""

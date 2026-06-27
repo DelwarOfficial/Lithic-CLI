@@ -26,4 +26,6 @@ class OpenAIProvider(BaseProvider):
             messages=cast(Any, messages),
             **kwargs,
         )
+        if not response.choices:
+            raise RuntimeError("OpenAI returned no completions")
         return response.choices[0].message.content or ""

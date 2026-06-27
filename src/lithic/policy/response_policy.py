@@ -51,15 +51,26 @@ class ResponsePolicy:
             return self._safety(content)
         return self._concise(content, ultra=mode == "caveman_ultra", full=mode == "caveman_full")
 
+    _COMMIT_TYPE_RE = re.compile(
+        r"^(fix|feat|chore|docs|refactor|test|style|perf|ci|build|revert)[\s(:]"
+    )
+
     def format_commit(self, content: str) -> str:
         """Generate a conventional commit subject."""
         first = next(
-            (line.strip("- *") for line in content.splitlines() if line.strip()),
+            (line for line in content.splitlines() if line.strip()),
             "update code",
         )
-        first = re.sub(r"^(changed|updated|fixed|added)\s+", "", first, flags=re.I)
-        subject = f"fix: {first[:43].rstrip()}".lower()
-        return subject.rstrip(".")
+        first = first.lstrip("- *").strip()
+        match = self._COMMIT_TYPE_RE.match(first)
+        if match:
+            prefix = match.group(1)
+            first = first[match.end() :].lstrip(": ").strip()
+        else:
+            first = re.sub(r"^(changed|updated|fixed|added)\s+", "", first, flags=re.I)
+            prefix = "fix"
+        subject = f"{prefix}: {first[:40].strip()}".lower().rstrip(".")
+        return subject
 
     def format_review(self, content: str) -> str:
         """Generate actionable review findings."""

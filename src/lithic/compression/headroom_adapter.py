@@ -130,8 +130,14 @@ class HeadroomAdapter:
                 seen.add(key)
                 deduped.append(line)
         head = lines[:80]
-        tail = lines[-80:] if len(lines) > 80 else []
-        body = "\n".join([*head, *deduped[:120], "... [compressed middle] ...", *tail])
+        has_middle = len(lines) > 160
+        tail = lines[-80:] if has_middle else []
+        middle: list[str] = []
+        if has_middle:
+            middle = [*deduped[:120], "... [compressed middle] ..."]
+        elif deduped:
+            middle = deduped[:120]
+        body = "\n".join([*head, *middle, *tail])
         if protected:
             body += "\n\n[preserved code blocks]\n" + "\n".join(protected)
         if len(body) > max_chars:

@@ -17,7 +17,7 @@ class ChangeAnalyzer:
         for line in lines:
             if line.startswith("+++ b/"):
                 files_changed.append(line[6:])
-            elif line.startswith("--- a/"):
+            elif line.startswith("---"):
                 continue
             elif line.startswith("+"):
                 additions += 1
