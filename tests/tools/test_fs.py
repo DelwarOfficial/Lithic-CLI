@@ -1,3 +1,5 @@
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -40,13 +42,33 @@ def test_read_text_truncated(tmp_path: Path) -> None:
     assert "... [truncated] ..." in result
 
 
-def test_resolve_symlink_inside_root(tmp_path: Path) -> None:
-    target = tmp_path / "target.txt"
-    target.write_text("data", encoding="utf-8")
-    link = tmp_path / "link.txt"
-    link.symlink_to(target)
-    result = resolve_path_within_root(tmp_path, link)
-    assert result == target.resolve()
+def _create_link_outside_root(tmp_path: Path, target: Path) -> Path:
+    """Create a link from inside tmp_path to target outside root.
+
+    Uses junctions on Windows (works without admin), symlinks elsewhere.
+    """
+    if sys.platform == "win32":
+        link = tmp_path / "_linked_dir"
+        # mklink /J creates a junction (directory reparse point)
+        # Works without admin on all Windows versions
+        subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(link), str(target)],
+            check=True, capture_output=True, text=True,
+        )
+    else:
+        link = tmp_path / "_linked"
+        link.symlink_to(target)
+    return link
+
+
+def test_resolve_link_outside_root_raises(tmp_path: Path) -> None:
+    outside_dir = tmp_path.parent / "_outside_dir"
+    outside_dir.mkdir(exist_ok=True)
+    (outside_dir / "file.txt").write_text("data", encoding="utf-8")
+    link = _create_link_outside_root(tmp_path, outside_dir)
+    path_through_link = link / "file.txt"
+    with pytest.raises(ValueError, match="must stay inside"):
+        resolve_path_within_root(tmp_path, path_through_link)
 
 
 def test_resolve_dot_dot_raises(tmp_path: Path) -> None:

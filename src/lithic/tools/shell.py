@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -14,6 +15,7 @@ class CommandError(RuntimeError):
     """Raised when a shell command fails, times out, or is destructive."""
 
 _DANGEROUS_PYTHON_KEYWORDS = {"shutil", "rmtree", "os.remove", "os.unlink", "send2trash"}
+_CONFIRM_ENV = "LITHIC_ALLOW_DESTRUCTIVE"
 
 
 def _is_destructive(command: list[str]) -> bool:
@@ -63,11 +65,24 @@ def _is_destructive(command: list[str]) -> bool:
     return False
 
 
+def _confirm_destructive(command: list[str]) -> bool:
+    """Prompt user to confirm a destructive command."""
+    rendered = " ".join(command)
+    prompt = f"Destructive command: {rendered}\nAllow? [y/N] "
+    if sys.stdout.isatty():
+        try:
+            return input(prompt).strip().lower() == "y"
+        except (EOFError, KeyboardInterrupt):
+            return False
+    return os.getenv(_CONFIRM_ENV, "").lower() in {"1", "yes", "true", "y"}
+
+
 def run(command: list[str], cwd: Path, timeout: int = 60) -> str:
     """Run a shell command safely using subprocess list form."""
     if _is_destructive(command):
         rendered = " ".join(command)
-        raise CommandError(f"refusing destructive command: {rendered}")
+        if not _confirm_destructive(command):
+            raise CommandError(f"refusing destructive command: {rendered}")
     start = time.monotonic()
     try:
         result = subprocess.run(

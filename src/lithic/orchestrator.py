@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from pathlib import Path
 from typing import Any
@@ -13,6 +14,9 @@ from lithic.policy.response_policy import ResponsePolicy
 from lithic.providers.service import LLMService
 from lithic.tools import git
 from lithic.tools.fs import resolve_path_within_root
+
+
+_log = logging.getLogger("lithic.orchestrator")
 
 
 class Orchestrator:
@@ -60,6 +64,7 @@ class Orchestrator:
         try:
             return self._llm.complete(messages)
         except RuntimeError:
+            _log.warning("LLM completion failed, returning raw context", exc_info=True)
             return context
 
     def ask(self, question: str) -> str:
@@ -98,6 +103,7 @@ class Orchestrator:
         try:
             diff = git.diff(self.config.project_root, staged=True)
         except RuntimeError:
+            _log.info("staged diff failed, falling back to working-tree diff", exc_info=True)
             pass
         if not diff:
             try:

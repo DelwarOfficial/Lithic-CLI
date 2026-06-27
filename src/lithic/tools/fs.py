@@ -9,14 +9,22 @@ def resolve_path_within_root(root: Path, candidate: Path | str) -> Path:
     """Resolve a path and ensure it stays inside the given root."""
     candidate_path = Path(candidate)
     if candidate_path.is_absolute():
-        path = candidate_path.resolve()
+        base = candidate_path
     else:
-        path = (root / candidate_path).resolve()
+        base = root / candidate_path
+    resolved = base.resolve()
+    if base.is_symlink():
+        target = base.readlink()
+        if not target.is_absolute():
+            target = (base.parent / target).resolve()
+        else:
+            target = target.resolve()
+        resolved = target
     try:
-        path.relative_to(root.resolve())
+        resolved.relative_to(root.resolve())
     except ValueError as exc:
-        raise ValueError(f"path must stay inside project root: {path}") from exc
-    return path
+        raise ValueError(f"path must stay inside project root: {resolved}") from exc
+    return resolved
 
 
 def read_text(path: Path, max_chars: int = 12000) -> str:

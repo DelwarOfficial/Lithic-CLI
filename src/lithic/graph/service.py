@@ -9,7 +9,7 @@ from lithic.graph.graphify_adapter import GraphifyAdapter
 
 
 class _TTLCache:
-    """Simple TTL cache for graph query results."""
+    """TTL cache with LRU eviction for graph query results."""
 
     def __init__(self, ttl: float = 60.0, maxsize: int = 128):
         self._ttl = ttl
@@ -24,20 +24,37 @@ class _TTLCache:
         if time.monotonic() - ts > self._ttl:
             del self._store[key]
             return None
+        self._store[key] = (time.monotonic(), value)
         return value
 
     def set(self, key: str, value: str) -> None:
         if len(self._store) >= self._maxsize:
-            self._store.pop(next(iter(self._store)))
+            oldest = min(self._store, key=lambda k: self._store[k][0])
+            del self._store[oldest]
         self._store[key] = (time.monotonic(), value)
 
 
 class GraphService:
-    """Wraps graph operations behind a stable service interface."""
+    """Wraps graph operations behind a stable service interface.
 
-    def __init__(self, project_root: Path, graph_output_dir: Path | None = None) -> None:
+    Parameters
+    ----------
+    project_root:
+        Root directory for the project.
+    graph_output_dir:
+        Directory for graph output. Defaults to project_root/graphify-out.
+    cache_ttl:
+        Time-to-live for cached query/explain/path results, in seconds.
+    """
+
+    def __init__(
+        self,
+        project_root: Path,
+        graph_output_dir: Path | None = None,
+        cache_ttl: float = 60.0,
+    ) -> None:
         self._adapter = GraphifyAdapter(project_root, graph_output_dir)
-        self._cache = _TTLCache()
+        self._cache = _TTLCache(ttl=cache_ttl)
 
     @property
     def graph_path(self) -> Path:

@@ -1,17 +1,20 @@
-"""Provider layer exports."""
+"""Provider layer exports.
 
-from lithic.providers.anthropic_provider import AnthropicProvider
+Always-available exports:
+  BaseProvider  — ABC for provider implementations
+  LLMService    — provider registry and factory
+
+Provider implementations (require optional extras):
+  AnthropicProvider  — needs ``uv sync --extra llm``
+  OpenAIProvider     — needs ``uv sync --extra llm``
+  OllamaProvider     — always available (uses httpx)
+  OpenRouterProvider — always available (uses httpx)
+"""
+
 from lithic.providers.base import BaseProvider
-from lithic.providers.ollama_provider import OllamaProvider
-from lithic.providers.openai_provider import OpenAIProvider
-from lithic.providers.openrouter_provider import OpenRouterProvider
 from lithic.providers.service import LLMService
 
 __all__ = [
-    "AnthropicProvider",
     "BaseProvider",
     "LLMService",
-    "OllamaProvider",
-    "OpenAIProvider",
-    "OpenRouterProvider",
 ]

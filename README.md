@@ -279,15 +279,20 @@ cd Lithic-CLI
 pip install -e .
 ```
 
-### Optional Headroom extra
+### Optional extras
 
 ```powershell
+# LLM providers (Anthropic, OpenAI)
+uv sync --extra llm
+
+# MCP server
+uv sync --extra mcp
+
+# Headroom compression accelerator
 uv sync --extra headroom
 ```
 
-On Windows, `headroom-ai` may require [Rust/MSVC build tools](https://rustup.rs/) when a pre-built wheel is unavailable. Lithic works without this extra by falling back to its built-in deterministic compressor.
-
-On some Windows environments, `headroom-ai` may require Rust/MSVC build tooling when a compatible wheel is unavailable. Lithic still works without that extra by falling back to its built-in deterministic compressor.
+On Windows, `headroom-ai` may require [Rust/MSVC build tools](https://rustup.rs/) when a pre-built wheel is unavailable. Lithic works without these extras by falling back to its built-in deterministic compressor.
 
 ---
 
@@ -375,10 +380,13 @@ Or use the direct pip installation path:
 
 Once connected, Claude can use Lithic tools directly:
 
-- **`index_graph`** — Build or refresh a project graph
-- **`ask_graph`** — Query the graph for architecture insights
-- **`explain_symbol`** — Get context-rich explanations
-- **`compress_content`** — Reduce token usage for tool output
+- **`lithic_graph_query`** — Query the graph for architecture insights
+- **`lithic_graph_explain`** — Get context-rich explanations
+- **`lithic_graph_path`** — Find a relationship path between concepts
+- **`lithic_compress`** — Reduce token usage for tool output
+- **`lithic_review`** — Review current diff concisely
+- **`lithic_commit`** — Generate Conventional Commit messages
+- **`lithic_stats`** — Return graph and compression stats
 
 This makes Lithic a powerful backend for AI agents working with large codebases.
 

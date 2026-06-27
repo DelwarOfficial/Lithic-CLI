@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
+from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Any
 
@@ -37,7 +38,7 @@ class CompressionStats:
 class HeadroomAdapter:
     def __init__(self, cache_size: int = 64) -> None:
         self._stats = CompressionStats()
-        self._cache: dict[int, str] = {}
+        self._cache: OrderedDict[int, str] = OrderedDict()
         self._cache_size = cache_size
         try:
             from headroom import compress as headroom_compress
@@ -54,12 +55,16 @@ class HeadroomAdapter:
         return hash((text, max_chars))
 
     def _cache_get(self, key: int) -> str | None:
-        return self._cache.get(key)
+        value = self._cache.get(key)
+        if value is not None:
+            self._cache.move_to_end(key)
+        return value
 
     def _cache_put(self, key: int, value: str) -> None:
-        if len(self._cache) >= self._cache_size:
-            self._cache.pop(next(iter(self._cache)))
         self._cache[key] = value
+        self._cache.move_to_end(key)
+        while len(self._cache) > self._cache_size:
+            self._cache.popitem(last=False)
 
     def compress_text(self, text: str, label: str | None = None) -> str:
         key = self._cache_key(text)

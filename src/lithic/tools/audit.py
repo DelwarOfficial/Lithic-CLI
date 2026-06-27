@@ -26,6 +26,7 @@ _AUTH_HEADER_RE = re.compile(
     r"(?i)\bauthorization(\s*[:=]\s*)(?:bearer\s+)?[^\s'\",}]+"
 )
 _BEARER_RE = re.compile(r"(?i)\bbearer\s+[A-Za-z0-9._~+\-/]+=*")
+_URL_CREDENTIALS_RE = re.compile(r"(://)([^:]+):([^@]+)@")
 
 
 def _setup() -> None:
@@ -47,7 +48,8 @@ def _setup() -> None:
 def _redact(value: str) -> str:
     redacted = _AUTH_HEADER_RE.sub(lambda m: f"Authorization{m.group(1)}***", value)
     redacted = _SECRET_ASSIGNMENT_RE.sub(lambda m: f"{m.group(1)}{m.group(2)}***", redacted)
-    return _BEARER_RE.sub("Bearer ***", redacted)
+    redacted = _BEARER_RE.sub("Bearer ***", redacted)
+    return _URL_CREDENTIALS_RE.sub(r"\1***:***@", redacted)
 
 
 def _redact_obj(obj: object) -> object:

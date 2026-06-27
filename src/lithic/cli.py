@@ -2,24 +2,19 @@
 
 from __future__ import annotations
 
-import asyncio
 from pathlib import Path
 from typing import Any, cast
 
 import click
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
 from lithic.config import AgentConfig
 from lithic.orchestrator import Orchestrator
 from lithic.updater import UpstreamChecker
 
 console = Console()
-
-
-def _run_async(coro: Any) -> Any:
-    """Run an async coroutine from a synchronous CLI command."""
-    return asyncio.run(coro)
 
 
 @click.group()
@@ -69,7 +64,9 @@ def main(ctx: click.Context, verbose: bool, provider: str | None,
 def index(ctx: click.Context, path: str) -> None:
     """Build or refresh the project graph."""
     orch: Orchestrator = ctx.obj["orchestrator"]
-    console.print(orch.index(path))
+    with Progress(SpinnerColumn(), TextColumn("building graph..."), console=console) as progress:
+        progress.add_task("build", total=None)
+        console.print(orch.index(path))
 
 
 @main.command()
@@ -78,14 +75,7 @@ def index(ctx: click.Context, path: str) -> None:
 def ask(ctx: click.Context, question: str) -> None:
     """Ask an architecture/codebase question."""
     orch: Orchestrator = ctx.obj["orchestrator"]
-    if orch.provider() is not None:
-        cols = [SpinnerColumn(), TextColumn("querying graph...")]
-        with Progress(*cols, console=console) as progress:
-            progress.add_task("query", total=None)
-            result = _run_async(orch.async_ask(question))
-    else:
-        result = orch.ask(question)
-    console.print(result)
+    console.print(orch.ask(question))
 
 
 @main.command()
@@ -94,14 +84,7 @@ def ask(ctx: click.Context, question: str) -> None:
 def explain(ctx: click.Context, concept: str) -> None:
     """Explain a symbol, module, file, or concept."""
     orch: Orchestrator = ctx.obj["orchestrator"]
-    if orch.provider() is not None:
-        cols = [SpinnerColumn(), TextColumn("explaining concept...")]
-        with Progress(*cols, console=console) as progress:
-            progress.add_task("explain", total=None)
-            result = _run_async(orch.async_explain(concept))
-    else:
-        result = orch.explain(concept)
-    console.print(result)
+    console.print(orch.explain(concept))
 
 
 @main.command("path")
@@ -155,9 +138,19 @@ def stats(ctx: click.Context) -> None:
     orch: Orchestrator = ctx.obj["orchestrator"]
     data = cast(dict[str, Any], orch.stats())
     compression = cast(dict[str, Any], data["compression"])
-    console.print(f"Graph exists: {data['graph_exists']}")
-    console.print(f"History count: {data['history_count']}")
-    console.print(f"Compression calls: {compression['calls']}")
+    table = Table(title="Lithic Stats", show_header=False)
+    table.add_column("Key", style="cyan")
+    table.add_column("Value", style="yellow")
+    table.add_row("Graph exists", str(data["graph_exists"]))
+    table.add_row("History count", str(data["history_count"]))
+    table.add_row("Compression calls", str(compression["calls"]))
+    if "savings_ratio" in compression:
+        ratio = compression["savings_ratio"]
+        table.add_row("Compression savings", f"{ratio:.1%}")
+    console.print(table)
+
+
+
 
 
 @main.command("upstream-status")
