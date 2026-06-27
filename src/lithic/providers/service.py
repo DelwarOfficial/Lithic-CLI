@@ -70,16 +70,6 @@ class LLMService:
             )
         return cast(str, p.complete(messages, **kwargs))
 
-    async def async_complete(self, messages: list[dict[str, Any]], **kwargs: Any) -> str:
-        p = self.get_provider()
-        if p is None:
-            raise RuntimeError(
-                f"no provider for '{self.config.provider}' "
-                f"(valid: {list(_PROVIDER_MAP) or 'none'})"
-            )
-        result = await p.async_complete(messages, **kwargs)
-        return cast(str, result)
-
     @staticmethod
     def available() -> list[str]:
         _init_provider_map()

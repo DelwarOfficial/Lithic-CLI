@@ -31,17 +31,4 @@ class AnthropicProvider(BaseProvider):
         )
         return "".join(getattr(block, "text", "") for block in response.content)
 
-    async def async_complete(self, messages: list[dict[str, Any]], **kwargs: Any) -> str:
-        api_key = os.getenv("ANTHROPIC_API_KEY")
-        if not api_key:
-            raise RuntimeError("ANTHROPIC_API_KEY is not set")
-        from anthropic import AsyncAnthropic
 
-        client = AsyncAnthropic(api_key=api_key)
-        response = await client.messages.create(
-            model=self.model,
-            max_tokens=kwargs.pop("max_tokens", 1024),
-            messages=cast(Any, messages),
-            **kwargs,
-        )
-        return "".join(getattr(block, "text", "") for block in response.content)

@@ -50,13 +50,6 @@ class GraphifyAdapter:
             raise RuntimeError(f"Graphify finished but graph was not written: {self.graph_path}")
         return self.graph_path
 
-    def update_graph(self, target_path: str = ".") -> Path:
-        target = self._safe_target(target_path)
-        if not self.graph_exists():
-            return self.build_graph(target_path)
-        self._run(["graphify", "update", str(target), "--force"])
-        return self.graph_path
-
     def query(self, question: str) -> str:
         self._ensure_graph()
         return self._run(

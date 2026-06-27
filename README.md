@@ -427,9 +427,9 @@ Lithic is designed to stay concise without becoming careless.
 
 ---
 
-## 📊 Current Scope
+## 📊 Current Scope And Roadmap
 
-Lithic is currently strongest as a **codebase understanding, compression, review, and commit-assist tool**.
+Lithic is a focused CLI/MCP tool for **codebase understanding, compression, review, and commit assistance**. The current product boundary is deliberate: graph-first orientation and context compression are stable first, write-capable automation comes after stronger safety rails.
 
 **Implemented today:**
 
@@ -439,11 +439,13 @@ Lithic is currently strongest as a **codebase understanding, compression, review
 - 🔌 CLI and MCP surfaces
 - 🧩 Optional provider wrappers
 
-**Not yet implemented:**
+**Planned next:**
 
-- ✏️ Autonomous file-edit execution
-- 🔄 Reversible decompression APIs
-- 🧰 Full IDE/plugin packaging workflows
+- ✏️ Guarded file-edit execution with previews, diffs, and explicit approval
+- 🔄 Reversible decompression APIs for traceable context round-trips
+- 🧰 IDE/plugin packaging for Cursor, Claude Desktop, and other MCP clients
+
+**Maturity:** Lithic is suitable for local development workflows today. Treat autonomous edits and IDE packaging as roadmap items, not advertised shipped features.
 
 ---
 
@@ -452,7 +454,6 @@ Lithic is currently strongest as a **codebase understanding, compression, review
 - [`docs/architecture.md`](docs/architecture.md) — System architecture and design
 - [`docs/setup.md`](docs/setup.md) — Detailed setup instructions
 - [`docs/model-comparison.md`](docs/model-comparison.md) — Provider pricing links and comparison
-- [`docs/source-review.md`](docs/source-review.md) — Source review guidelines
 - [`docs/merge-notes.md`](docs/merge-notes.md) — Merge notes
 - [`docs/license-attribution.md`](docs/license-attribution.md) — License attributions
 

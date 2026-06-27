@@ -1117,15 +1117,12 @@ wheels = [
 
 [[package]]
 name = "lithic-cli"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
-    { name = "anthropic" },
     { name = "click" },
     { name = "graphifyy" },
     { name = "httpx" },
-    { name = "mcp" },
-    { name = "openai" },
     { name = "pydantic" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
@@ -1135,6 +1132,13 @@ dependencies = [
 [package.optional-dependencies]
 headroom = [
     { name = "headroom-ai", extra = ["code", "mcp", "proxy", "relevance"] },
+]
+llm = [
+    { name = "anthropic" },
+    { name = "openai" },
+]
+mcp = [
+    { name = "mcp" },
 ]
 
 [package.dev-dependencies]
@@ -1147,19 +1151,19 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "anthropic", specifier = ">=0.49.0" },
+    { name = "anthropic", marker = "extra == 'llm'", specifier = ">=0.49.0" },
     { name = "click", specifier = ">=8.1.8" },
     { name = "graphifyy", specifier = ">=0.8.47" },
     { name = "headroom-ai", extras = ["proxy", "code", "mcp", "relevance"], marker = "extra == 'headroom'", specifier = ">=0.27.0" },
     { name = "httpx", specifier = ">=0.28.1" },
-    { name = "mcp", specifier = ">=1.28.0,<2" },
-    { name = "openai", specifier = ">=2.44.0" },
+    { name = "mcp", marker = "extra == 'mcp'", specifier = ">=1.28.0,<2" },
+    { name = "openai", marker = "extra == 'llm'", specifier = ">=2.44.0" },
     { name = "pydantic", specifier = ">=2.10.0" },
     { name = "python-dotenv", specifier = ">=1.0.0" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "rich", specifier = ">=13.9.0" },
 ]
-provides-extras = ["headroom"]
+provides-extras = ["headroom", "llm", "mcp"]
 
 [package.metadata.requires-dev]
 dev = [

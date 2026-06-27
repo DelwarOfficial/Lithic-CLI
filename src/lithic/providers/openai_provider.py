@@ -30,18 +30,4 @@ class OpenAIProvider(BaseProvider):
             raise RuntimeError("OpenAI returned no completions")
         return response.choices[0].message.content or ""
 
-    async def async_complete(self, messages: list[dict[str, Any]], **kwargs: Any) -> str:
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            raise RuntimeError("OPENAI_API_KEY is not set")
-        from openai import AsyncOpenAI
 
-        client = AsyncOpenAI(api_key=api_key)
-        response = await client.chat.completions.create(
-            model=self.model,
-            messages=cast(Any, messages),
-            **kwargs,
-        )
-        if not response.choices:
-            raise RuntimeError("OpenAI returned no completions")
-        return response.choices[0].message.content or ""

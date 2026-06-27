@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import Any
 
-import httpx
-
 from lithic.providers.base import BaseProvider
 
 
@@ -17,6 +15,8 @@ class OllamaProvider(BaseProvider):
         self.base_url = base_url.rstrip("/")
 
     def complete(self, messages: list[dict[str, Any]], **kwargs: Any) -> str:
+        import httpx
+
         payload = {"model": self.model, "messages": messages, "stream": False}
         payload.update(kwargs)
         response = httpx.post(f"{self.base_url}/api/chat", json=payload, timeout=60.0)
@@ -27,18 +27,3 @@ class OllamaProvider(BaseProvider):
         if not isinstance(content, str):
             raise RuntimeError("Ollama returned no message content")
         return content
-
-    async def async_complete(self, messages: list[dict[str, Any]], **kwargs: Any) -> str:
-        payload = {"model": self.model, "messages": messages, "stream": False}
-        payload.update(kwargs)
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{self.base_url}/api/chat", json=payload, timeout=60.0
-            )
-            response.raise_for_status()
-            body = response.json()
-            message = body.get("message", {})
-            content = message.get("content")
-            if not isinstance(content, str):
-                raise RuntimeError("Ollama returned no message content")
-            return content

@@ -8,8 +8,6 @@ import os
 import time
 from typing import Any
 
-from pydantic import BaseModel
-
 from lithic.compression.headroom_adapter import HeadroomAdapter
 from lithic.orchestrator import Orchestrator
 from lithic.tools.audit import input_rejected, tool_call
@@ -41,31 +39,6 @@ class _RateLimiter:
         self._calls.append(now)
 
 
-class QueryInput(BaseModel):
-    """Graph query input schema."""
-
-    question: str
-
-
-class ExplainInput(BaseModel):
-    """Graph explain input schema."""
-
-    concept: str
-
-
-class PathInput(BaseModel):
-    """Graph path input schema."""
-
-    source: str
-    target: str
-
-
-class CompressInput(BaseModel):
-    """Compression input schema."""
-
-    text: str
-
-
 def _tool_result(text: str) -> list[Any]:
     from mcp.types import TextContent
 
@@ -85,6 +58,21 @@ def build_server() -> Any:
         from mcp.types import Tool
     except ImportError as exc:
         raise RuntimeError("mcp package is not installed. Install with `uv add mcp`.") from exc
+
+    from pydantic import BaseModel
+
+    class QueryInput(BaseModel):
+        question: str
+
+    class ExplainInput(BaseModel):
+        concept: str
+
+    class PathInput(BaseModel):
+        source: str
+        target: str
+
+    class CompressInput(BaseModel):
+        text: str
 
     server = Server("lithic")
     orch = Orchestrator()

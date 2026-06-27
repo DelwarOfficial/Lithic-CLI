@@ -63,9 +63,13 @@ User (CLI or MCP)
 | MCP | Input size caps, rate limiter, sanitized errors |
 | Audit | Secret redaction before log write |
 
-## Not yet implemented
+## Roadmap Boundaries
 
-- Reversible decompress API
-- IDE plugin packaging
-- Autonomous edit execution
-- Network-mode MCP transport (stdio only)
+The shipped boundary is graph-first analysis, compression, response shaping, provider-backed answers, CLI, and stdio MCP. Write-capable automation is intentionally gated behind future safety work.
+
+Planned areas:
+
+- Reversible decompress API with traceable references
+- IDE/plugin packaging for common MCP-capable editors
+- Guarded autonomous edit execution with preview, diff, and explicit approval
+- Network-mode MCP transport if per-client auth and rate limiting are added

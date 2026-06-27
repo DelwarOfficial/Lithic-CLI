@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import pytest
-
 from lithic.config import AgentConfig
 from lithic.orchestrator import Orchestrator
 
@@ -41,24 +39,6 @@ def test_commit_uses_diff(monkeypatch, tmp_path: Path) -> None:
     )
     out = orch.commit()
     assert out.startswith("fix:")
-
-
-@pytest.mark.asyncio
-async def test_async_ask_with_provider(monkeypatch, tmp_path: Path) -> None:
-    orch = _orch(tmp_path)
-    monkeypatch.setattr(orch.graph, "query", lambda q: "graph data")
-    monkeypatch.setattr(orch, "_async_llm_answer", lambda ctx, task: "llm answer")
-    result = await orch.async_ask("how auth?")
-    assert result is not None
-
-
-@pytest.mark.asyncio
-async def test_async_explain_with_provider(monkeypatch, tmp_path: Path) -> None:
-    orch = _orch(tmp_path)
-    monkeypatch.setattr(orch.graph, "explain", lambda c: f"about {c}")
-    monkeypatch.setattr(orch, "_async_llm_answer", lambda ctx, task: "llm answer")
-    result = await orch.async_explain("UserService")
-    assert result is not None
 
 
 def test_classify_returns_expected_types(tmp_path: Path) -> None:
