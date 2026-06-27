@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import time
 from typing import Any
 
@@ -13,12 +14,12 @@ from lithic.compression.headroom_adapter import HeadroomAdapter
 from lithic.orchestrator import Orchestrator
 from lithic.tools.audit import input_rejected, tool_call
 
-_MAX_INPUT_CHARS = 100_000
-_MAX_CALLS_PER_WINDOW = 60
-_WINDOW_SEC = 60.0
+_MAX_INPUT_CHARS = int(os.getenv("LITHIC_MCP_MAX_INPUT_CHARS", "100_000"))
+_MAX_CALLS_PER_WINDOW = int(os.getenv("LITHIC_MCP_MAX_CALLS", "60"))
+_WINDOW_SEC = float(os.getenv("LITHIC_MCP_WINDOW_SEC", "60.0"))
 
-_QUERY_SIZE_LIMIT = 2000
-_COMPRESS_SIZE_LIMIT = 500_000
+_QUERY_SIZE_LIMIT = int(os.getenv("LITHIC_MCP_QUERY_SIZE_LIMIT", "2000"))
+_COMPRESS_SIZE_LIMIT = int(os.getenv("LITHIC_MCP_COMPRESS_SIZE_LIMIT", "500_000"))
 
 
 class _RateLimiter:

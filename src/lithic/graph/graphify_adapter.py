@@ -34,9 +34,16 @@ class GraphifyAdapter:
         try:
             self._run(["graphify", "extract", str(target), "--no-viz", "--no-cluster"])
         except RuntimeError as exc:
-            if "no LLM API key found" not in str(exc):
+            err = str(exc).lower()
+            if "api key" in err or "llm" in err or "auth" in err:
+                try:
+                    self._run(["graphify", "update", str(target), "--force"])
+                except RuntimeError:
+                    raise RuntimeError(
+                        "Graphify needs LLM API key. Set ANTHROPIC_API_KEY or OPENAI_API_KEY."
+                    ) from exc
+            else:
                 raise
-            self._run(["graphify", "update", str(target), "--force"])
         if not self.graph_exists():
             raise RuntimeError(f"Graphify finished but graph was not written: {self.graph_path}")
         return self.graph_path
@@ -150,7 +157,8 @@ class GraphifyAdapter:
     def _run(self, args: list[str], timeout: int = 120) -> str:
         exe = shutil.which(args[0])
         command = args if exe is not None else ["uv", "run", *args]
-        env = {"PATH": os.environ.get("PATH", ""), "GRAPHIFY_OUT": str(self.graph_output_dir)}
+        env = os.environ.copy()
+        env["GRAPHIFY_OUT"] = str(self.graph_output_dir)
         start = time.monotonic()
         try:
             result = subprocess.run(
@@ -178,4 +186,4 @@ class GraphifyAdapter:
             audit_subprocess(command, result.returncode, elapsed, detail)
             raise RuntimeError(f"Graphify command failed ({rendered}): {detail}")
         audit_subprocess(command, result.returncode, elapsed)
-        return output or error
+        return output or error or "(empty response)"

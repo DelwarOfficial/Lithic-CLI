@@ -18,6 +18,8 @@ venv/
 
 # --- Local toolchain ---
 graphify-out/
+uv.lock
+.uv/
 
 # --- IDE / Editor ---
 .vscode/

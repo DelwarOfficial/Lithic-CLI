@@ -11,7 +11,7 @@ _LOG = logging.getLogger(__name__)
 
 CODE_BLOCK_RE = re.compile(r"(```.*?```)", re.DOTALL)
 ERROR_RE = re.compile(r"(?i)(error|exception|traceback|failed|fatal|warning)")
-PATH_RE = re.compile(r"([A-Za-z]:\\[^\s:]+|(?:\.{1,2}/|/)?[\w.-]+(?:/[\w.-]+)+)")
+PATH_RE = re.compile(r"([A-Za-z]:[\\/][^\s:]+|(?:\.{1,2}/|/)?[\w.-]+(?:/[\w.-]+)+)")
 
 
 @dataclass
@@ -78,6 +78,9 @@ class HeadroomAdapter:
     def compress_tool_output(self, output: str, max_chars: int = 8000) -> str:
         if len(output) <= max_chars:
             return self._record(output, output)
+        headroom_result = self._compress_with_headroom(output, "tool_output")
+        if headroom_result is not None and len(headroom_result) <= max_chars:
+            return self._record(output, headroom_result)
         compressed = self._fallback_compress(output, max_chars=max_chars)
         return self._record(output, compressed)
 
@@ -138,11 +141,10 @@ class HeadroomAdapter:
         elif deduped:
             middle = deduped[:120]
         body = "\n".join([*head, *middle, *tail])
-        if protected:
-            body += "\n\n[preserved code blocks]\n" + "\n".join(protected)
-        if len(body) > max_chars:
-            body = body[: max_chars // 2] + "\n... [compressed] ...\n" + body[-max_chars // 2 :]
-        return body
+        block_text = "\n\n[preserved code blocks]\n" + "\n".join(protected) if protected else ""
+        if len(body) + len(block_text) > max_chars:
+            body = body[: max(1, max_chars - len(block_text))]
+        return body + block_text
 
     def _record(self, original: str, compressed: str) -> str:
         self._stats.calls += 1

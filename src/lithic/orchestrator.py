@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import Any
 
 from lithic.compression.headroom_adapter import HeadroomAdapter
 from lithic.config import AgentConfig
@@ -11,6 +12,33 @@ from lithic.graph.graphify_adapter import GraphifyAdapter
 from lithic.policy.response_policy import ResponsePolicy
 from lithic.tools import git
 from lithic.tools.fs import resolve_path_within_root
+
+_PROVIDER_MAP: dict[str, type[Any]] = {}
+
+
+def _init_provider_map() -> None:
+    if _PROVIDER_MAP:
+        return
+    try:
+        from lithic.providers.anthropic_provider import AnthropicProvider
+        _PROVIDER_MAP["anthropic"] = AnthropicProvider
+    except ImportError:
+        pass
+    try:
+        from lithic.providers.openai_provider import OpenAIProvider
+        _PROVIDER_MAP["openai"] = OpenAIProvider
+    except ImportError:
+        pass
+    try:
+        from lithic.providers.ollama_provider import OllamaProvider
+        _PROVIDER_MAP["ollama"] = OllamaProvider
+    except ImportError:
+        pass
+    try:
+        from lithic.providers.openrouter_provider import OpenRouterProvider
+        _PROVIDER_MAP["openrouter"] = OpenRouterProvider
+    except ImportError:
+        pass
 
 
 class Orchestrator:
@@ -22,6 +50,27 @@ class Orchestrator:
         self.compression = HeadroomAdapter()
         self.policy = ResponsePolicy()
         self.events: list[str] = []
+        self._provider: Any = None
+
+    def provider(self) -> Any:
+        if self._provider is not None:
+            return self._provider
+        _init_provider_map()
+        ptype = _PROVIDER_MAP.get(self.config.provider)
+        if ptype is None:
+            return None
+        self._provider = ptype(model=self.config.model)
+        return self._provider
+
+    def complete(self, messages: list[dict[str, Any]], **kwargs: Any) -> str:
+        p = self.provider()
+        if p is None:
+            raise RuntimeError(
+                f"no provider for '{self.config.provider}' "
+                f"(valid: {list(_PROVIDER_MAP) or 'none'})"
+            )
+        self.events.append(f"provider.{self.config.provider}")
+        return p.complete(messages, **kwargs)
 
     def classify(self, task: str) -> str:
         """Classify a user task into a workflow type."""
@@ -64,8 +113,8 @@ class Orchestrator:
         """Review current working-tree changes."""
         try:
             diff = git.diff(self.config.project_root)
-        except RuntimeError:
-            return "No changes to review."
+        except RuntimeError as exc:
+            return f"git error: {exc}"
         if not diff.strip():
             return "No changes to review."
         compressed = self.compression.compress_tool_output(diff)
@@ -73,11 +122,16 @@ class Orchestrator:
 
     def commit(self) -> str:
         """Generate a Conventional Commit message."""
+        diff = ""
         try:
             diff = git.diff(self.config.project_root, staged=True)
-            diff = diff or git.diff(self.config.project_root)
         except RuntimeError:
-            return "chore: no changes"
+            pass
+        if not diff:
+            try:
+                diff = git.diff(self.config.project_root)
+            except RuntimeError as exc:
+                return f"chore: git error - {exc}"
         if not diff.strip():
             return "chore: no changes"
         compressed = self.compression.compress_tool_output(diff, max_chars=12000)
@@ -108,6 +162,12 @@ class Orchestrator:
         size = path.stat().st_size
         if size > self._MAX_COMPRESS_BYTES:
             return f"file too large ({size} bytes > {self._MAX_COMPRESS_BYTES} limit)"
+        if size > 10_000_000:
+            with path.open("r", encoding="utf-8", errors="replace") as fh:
+                head = fh.read(1_000_000)
+                return self.compression.compress_tool_output(
+                    head + f"\n... [file truncated: {size} bytes, showing first 1MB] ..."
+                )
         content = path.read_text(encoding="utf-8", errors="replace")
         return self.compression.compress_tool_output(content)
 

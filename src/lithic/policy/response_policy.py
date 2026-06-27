@@ -39,7 +39,7 @@ class ResponsePolicy:
         """Apply the requested response mode with safety overrides."""
         if mode not in self.modes:
             raise ValueError(f"unknown response mode: {mode}")
-        if risk_level != "normal" or self.detect_risk(content) == "high":
+        if risk_level == "high" or self.detect_risk(content) == "high":
             mode = "safety_clear"
         if mode == "normal":
             return content
@@ -95,12 +95,22 @@ class ResponsePolicy:
             if full or ultra:
                 text = re.sub(r"\b(the|a|an)\b\s*", "", text, flags=re.I)
             if ultra:
-                text = (
-                    text.replace("because", "->")
-                    .replace("configuration", "config")
-                    .replace("implementation", "impl")
-                    .replace("request", "req")
-                    .replace("response", "res")
+                text = re.sub(
+                    r"\bbecause\b", "->",
+                    re.sub(
+                        r"\bconfiguration\b", "config",
+                        re.sub(
+                            r"\bimplementation\b", "impl",
+                            re.sub(
+                                r"\brequest\b", "req",
+                                re.sub(r"\bresponse\b", "res", text, flags=re.I),
+                                flags=re.I,
+                            ),
+                            flags=re.I,
+                        ),
+                        flags=re.I,
+                    ),
+                    flags=re.I,
                 )
             shaped.append(text)
         return "".join(shaped).strip()

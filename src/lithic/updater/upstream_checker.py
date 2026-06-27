@@ -30,10 +30,19 @@ class UpstreamChecker:
         self.lock_file = lock_file or self.project_root / "upstream.lock.yml"
 
     def check(self, *, remote: bool = True) -> list[UpstreamStatus]:
-        data = yaml.safe_load(self.lock_file.read_text(encoding="utf-8")) or {}
+        if not self.lock_file.exists():
+            return []
+        try:
+            raw = self.lock_file.read_text(encoding="utf-8")
+        except OSError:
+            return []
+        try:
+            data = yaml.safe_load(raw) or {}
+        except yaml.YAMLError:
+            return []
         projects = data.get("projects", {})
         if not isinstance(projects, dict):
-            raise ValueError("upstream.lock.yml must contain a projects mapping")
+            return []
         return [self._check_project(name, entry, remote=remote) for name, entry in projects.items()]
 
     def _check_project(
