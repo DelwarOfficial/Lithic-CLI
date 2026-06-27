@@ -216,10 +216,15 @@ graph TB
     Compression -.->|"Headroom-inspired"| Headroom["Headroom"]
     Policy -.->|"Caveman-inspired"| Caveman["Caveman"]
 
-    style Graph fill:#e1f5fe,stroke:#01579b
-    style Compression fill:#fff3e0,stroke:#e65100
-    style Policy fill:#f3e5f5,stroke:#4a148c
-    style Orchestrator fill:#e8f5e9,stroke:#1b5e20
+    style Graph fill:#dbeafe,stroke:#1e40af,color:#1e3a8a
+    style Compression fill:#fef3c7,stroke:#b45309,color:#92400e
+    style Policy fill:#f3e8ff,stroke:#7e22ce,color:#6b21a8
+    style Orchestrator fill:#dcfce7,stroke:#166534,color:#14532d
+    style User fill:#f8fafc,stroke:#475569,color:#1e293b
+    style Output fill:#f8fafc,stroke:#475569,color:#1e293b
+    style Graphify fill:#f1f5f9,stroke:#64748b,color:#475569
+    style Headroom fill:#f1f5f9,stroke:#64748b,color:#475569
+    style Caveman fill:#f1f5f9,stroke:#64748b,color:#475569
 ```
 
 ### Layer Responsibilities
