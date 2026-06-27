@@ -1,47 +1,74 @@
-<p align="center">
-<pre>
-██╗     ██╗████████╗██╗  ██╗██╗ ██████╗    ██████╗██╗     ██╗
-██║     ██║╚══██╔══╝██║  ██║██║██╔════╝   ██╔════╝██║     ██║
-██║     ██║   ██║   ███████║██║██║        ██║     ██║     ██║
-██║     ██║   ██║   ██╔══██║██║██║        ██║     ██║     ██║
-███████╗██║   ██║   ██║  ██║██║╚██████╗   ╚██████╗███████╗██║
-╚══════╝╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝ ╚═════╝    ╚═════╝╚══════╝╚═╝
-</pre>
+<div align="center">
+
+```
+██████╗ ██╗     ██╗████████╗██╗  ██╗██╗ ██████╗    ██████╗██╗     ██╗
+██╔════╝██║     ██║╚══██╔══╝██║  ██║██║██╔════╝   ██╔════╝██║     ██║
+██║     ██║     ██║   ██║   ███████║██║██║        ██║     ██║     ██║
+██║     ██║     ██║   ██║   ██╔══██║██║██║        ██║     ██║     ██║
+╚██████╗███████╗██║   ██║   ██║  ██║██║╚██████╗   ╚██████╗███████╗██║
+ ╚═════╝╚══════╝╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝ ╚═════╝    ╚═════╝╚══════╝╚═╝
+```
+
+# 🪨 Lithic-CLI
+
+**Graph-first codebase intelligence for AI coding agents**
+
+<p>
+  <strong>Cut context cost 80% · Index any repo · Ask architecture questions</strong>
 </p>
 
-# Lithic-CLI
-
-Graph-first codebase intelligence for AI coding agents
-
-Cut context cost 80% · index any repo · ask architecture questions
-
-<p align="center">
+<p>
   <a href="https://github.com/DelwarOfficial/Lithic-CLI"><img src="https://img.shields.io/github/stars/DelwarOfficial/Lithic-CLI?style=flat&color=yellow" alt="Stars"></a>
   <a href="https://github.com/DelwarOfficial/Lithic-CLI/commits/main"><img src="https://img.shields.io/github/last-commit/DelwarOfficial/Lithic-CLI?style=flat" alt="Last Commit"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/DelwarOfficial/Lithic-CLI?style=flat" alt="License"></a>
   <a href="https://pypi.org/project/lithic-cli/"><img src="https://img.shields.io/badge/pypi-Coming%20Soon-blue" alt="PyPI"></a>
 </p>
 
-<p align="center">
-  <a href="#installation">Install</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#cli-commands">Commands</a> •
-  <a href="#platform-guidelines">Platform Guidelines</a>
+<p>
+  <a href="#-quick-start"><strong>🚀 Quick Start</strong></a> ·
+  <a href="#-installation"><strong>📦 Install</strong></a> ·
+  <a href="#-cli-commands"><strong>⚡ Commands</strong></a> ·
+  <a href="#-mcp-integration"><strong>🔌 MCP</strong></a> ·
+  <a href="#-architecture"><strong>🧠 Architecture</strong></a>
 </p>
+
+</div>
+
+---
 
 AI agents waste tokens reading your entire codebase. Lithic builds a live architecture graph first, so agents understand structure, find relevant code, and answer questions without dumping everything into context.
 
-**What it does:**
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  📂 Your Codebase  →  🕸️ Graph Index  →  🧠 AI Agent        │
+│                     (80% fewer tokens)                         │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-- **`lithic index .`** — scan a repository into a queryable architecture graph
-- **`lithic ask "..."`** — question the graph about structure, dependencies, design
-- **`lithic explain "..."`** — explain any symbol, module, or file with graph context
-- **`lithic compress-file <file>`** — strip noise from tool output, logs, and diffs (up to 80% fewer tokens)
-- **`lithic review`** — concise diff review without the full context dump
-- **`lithic commit`** — generate Conventional Commit messages from staged changes
-- **`lithic upstream-status`** — check pinned Graphify, Headroom, and Caveman submodules
+<strong>🔑 Key Benefits</strong>
 
-## Platform Guidelines
+- ⚡ **80% token reduction** — compress large tool outputs and code context
+- 🕸️ **Graph-first understanding** — know architecture, not just files
+- 🔌 **MCP server included** — plug directly into Claude Desktop, Cursor, and more
+- 🧩 **Multi-provider ready** — OpenAI, Anthropic, OpenRouter, Ollama
+
+---
+
+## 🚀 What It Does
+
+| Command | Purpose |
+|---------|---------|
+| `lithic index .` | Scan a repository into a queryable architecture graph |
+| `lithic ask "..."` | Question the graph about structure, dependencies, design |
+| `lithic explain "..."` | Explain any symbol, module, or file with graph context |
+| `lithic compress-file <file>` | Strip noise from tool output, logs, and diffs (up to 80% fewer tokens) |
+| `lithic review` | Concise diff review without the full context dump |
+| `lithic commit` | Generate Conventional Commit messages from staged changes |
+| `lithic upstream-status` | Check pinned Graphify, Headroom, and Caveman submodules |
+
+---
+
+## 🖥️ Platform Guidelines
 
 ### 🍏 Mac Users
 
@@ -120,19 +147,23 @@ uv sync
 2. **Permission errors**: Install with `--user` flag or use virtual environment
 3. **Graph generation fails**: Ensure working directory has read/write access
 
-## Features
+---
 
-- Build and refresh a project knowledge graph
-- Ask architecture and codebase questions through Graphify-backed queries
-- Explain symbols, files, modules, and relationships
-- Find graph paths between concepts
-- Compress large file, shell, log, and diff output safely
-- Generate concise review output
-- Generate Conventional Commit-style commit messages
-- Expose core capabilities over MCP
-- Support optional provider integrations for OpenAI, Anthropic, OpenRouter, and Ollama
+## ✨ Features
 
-## Architecture
+- 🕸️ **Graph-powered indexing** — Build and refresh a project knowledge graph
+- 💬 **Natural language queries** — Ask architecture and codebase questions
+- 🔍 **Symbol explanation** — Explain symbols, files, modules, and relationships
+- 🧩 **Path finding** — Find graph paths between concepts
+- 📦 **Smart compression** — Compress large file, shell, log, and diff output safely
+- 📝 **Review generation** — Generate concise review output
+- 💾 **Commit messages** — Generate Conventional Commit-style commit messages
+- 🔌 **MCP server** — Expose core capabilities over Model Context Protocol
+- 🧠 **Multi-provider** — Support for OpenAI, Anthropic, OpenRouter, and Ollama
+
+---
+
+## 🧠 Architecture
 
 Lithic is organized into three primary runtime layers coordinated by an orchestrator:
 
@@ -200,31 +231,37 @@ graph TB
 
 These layers are coordinated by `lithic.orchestrator`, which is intentionally **graph-first**. Broad codebase questions are routed through graph context before narrower reads or downstream actions.
 
-## Resources
+---
 
-- [GitHub Repository](https://github.com/DelwarOfficial/Lithic-CLI)
-- [Issues](https://github.com/DelwarOfficial/Lithic-CLI/issues)
-- [Docs](docs/architecture.md)
+## 🔗 Resources
 
-## License
+- 📂 [GitHub Repository](https://github.com/DelwarOfficial/Lithic-CLI)
+- 🐛 [Issues](https://github.com/DelwarOfficial/Lithic-CLI/issues)
+- 📖 [Docs](docs/architecture.md)
+
+---
+
+## 📄 License
 
 MIT
 
 ---
 
-**Need help?** Provide your OS version and the exact error message for faster support.
+> **Need help?** Provide your OS version and the exact error message for faster support.
 
 More architecture details are available in [`docs/architecture.md`](docs/architecture.md).
 
-## Installation
+---
 
-### Requirements
+## 📦 Installation
 
-- Python 3.12
-- [uv](https://github.com/astral-sh/uv)
-- A shell environment such as PowerShell, Terminal, or Bash
+### 📋 Requirements
 
-### Install
+- 🐍 Python 3.12+
+- ⚡ [uv](https://github.com/astral-sh/uv) — Fast Python package installer
+- 🖥️ A shell environment (PowerShell, Terminal, or Bash)
+
+### 🚀 Install
 
 **Recommended (uv):**
 
@@ -252,53 +289,33 @@ On Windows, `headroom-ai` may require [Rust/MSVC build tools](https://rustup.rs/
 
 On some Windows environments, `headroom-ai` may require Rust/MSVC build tooling when a compatible wheel is unavailable. Lithic still works without that extra by falling back to its built-in deterministic compressor.
 
-## Quick Start
+---
 
-Index the repository:
+## 🏃 Quick Start
 
-```powershell
+```bash
+# 1. Index your codebase
 uv run lithic index .
-```
 
-Ask an architecture question:
-
-```powershell
+# 2. Ask an architecture question
 uv run lithic ask "explain this project architecture"
-```
 
-Explain a symbol:
-
-```powershell
+# 3. Explain any symbol
 uv run lithic explain "GraphifyAdapter"
-```
 
-Find a relationship path:
-
-```powershell
+# 4. Find relationships between concepts
 uv run lithic path "GraphifyAdapter" "HeadroomAdapter"
-```
 
-Compress a large file:
-
-```powershell
+# 5. Compress large files (80% fewer tokens)
 uv run lithic compress-file README.md
-```
 
-Review current changes:
-
-```powershell
+# 6. Review your changes concisely
 uv run lithic review
-```
 
-Generate a commit message:
-
-```powershell
+# 7. Generate a commit message
 uv run lithic commit
-```
 
-Start the MCP server:
-
-```powershell
+# 8. Start the MCP server for AI agents
 uv run lithic mcp serve
 ```
 
@@ -397,48 +414,56 @@ See [docs/model-comparison.md](docs/model-comparison.md) for links to official p
 
 More setup details are available in [`docs/setup.md`](docs/setup.md).
 
-## Safety
+---
+
+## 🛡️ Safety
 
 Lithic is designed to stay concise without becoming careless.
 
-- Destructive shell patterns are refused unless explicitly approved
-- Risky actions are shifted into clearer language instead of aggressive compression
-- Code blocks, commands, file paths, and error strings are preserved exactly during response shaping and compression
-- Original upstream repositories are not modified by Lithic itself
+- 🚫 Destructive shell patterns are refused unless explicitly approved
+- 🎯 Risky actions are shifted into clearer language instead of aggressive compression
+- ✅ Code blocks, commands, file paths, and error strings are preserved exactly during response shaping and compression
+- 🔒 Original upstream repositories are not modified by Lithic itself
 
-## Current Scope
+---
+
+## 📊 Current Scope
 
 Lithic is currently strongest as a **codebase understanding, compression, review, and commit-assist tool**.
 
-Implemented today:
+**Implemented today:**
 
-- graph-backed indexing and querying
-- deterministic or Headroom-backed compression
-- concise policy modes
-- CLI and MCP surfaces
-- optional provider wrappers
+- 🕸️ Graph-backed indexing and querying
+- 📦 Deterministic or Headroom-backed compression
+- 📝 Concise policy modes
+- 🔌 CLI and MCP surfaces
+- 🧩 Optional provider wrappers
 
-Not yet implemented:
+**Not yet implemented:**
 
-- autonomous file-edit execution
-- reversible decompression APIs
-- full IDE/plugin packaging workflows
+- ✏️ Autonomous file-edit execution
+- 🔄 Reversible decompression APIs
+- 🧰 Full IDE/plugin packaging workflows
 
-## Documentation
+---
 
-- [`docs/architecture.md`](docs/architecture.md)
-- [`docs/setup.md`](docs/setup.md)
-- [`docs/model-comparison.md`](docs/model-comparison.md) — provider pricing links and comparison
-- [`docs/source-review.md`](docs/source-review.md)
-- [`docs/merge-notes.md`](docs/merge-notes.md)
-- [`docs/license-attribution.md`](docs/license-attribution.md)
+## 📚 Documentation
 
-## License and Attribution
+- [`docs/architecture.md`](docs/architecture.md) — System architecture and design
+- [`docs/setup.md`](docs/setup.md) — Detailed setup instructions
+- [`docs/model-comparison.md`](docs/model-comparison.md) — Provider pricing links and comparison
+- [`docs/source-review.md`](docs/source-review.md) — Source review guidelines
+- [`docs/merge-notes.md`](docs/merge-notes.md) — Merge notes
+- [`docs/license-attribution.md`](docs/license-attribution.md) — License attributions
+
+---
+
+## 📄 License and Attribution
 
 Lithic includes adapter work and behavioral inspiration from:
 
-- Graphify - MIT
-- Headroom - Apache-2.0
-- Caveman - MIT
+- 🕸️ [Graphify](https://github.com/safishamsi/graphify) — MIT
+- 📦 [Headroom](https://github.com/chopratejas/headroom) — Apache-2.0
+- 🧠 [Caveman](https://github.com/JuliusBrussee/caveman) — MIT
 
-See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and the [`LICENSES`](LICENSES) directory for details.
+See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and the [`LICENSES/`](LICENSES) directory for full details.
