@@ -1,3 +1,4 @@
+<p align="center">
 <pre>
 ██╗     ██╗████████╗██╗  ██╗██╗ ██████╗    ██████╗██╗     ██╗
 ██║     ██║╚══██╔══╝██║  ██║██║██╔════╝   ██╔════╝██║     ██║
@@ -6,9 +7,13 @@
 ███████╗██║   ██║   ██║  ██║██║╚██████╗   ╚██████╗███████╗██║
 ╚══════╝╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝ ╚═════╝    ╚═════╝╚══════╝╚═╝
 </pre>
+</p>
+
 # Lithic-CLI
 
-Graph-first codebase intelligence for AI coding agents Cut context cost 80% · index any repo · ask architecture questions
+Graph-first codebase intelligence for AI coding agents
+
+Cut context cost 80% · index any repo · ask architecture questions
 
 <p align="center">
   <a href="https://github.com/DelwarOfficial/Lithic-CLI"><img src="https://img.shields.io/github/stars/DelwarOfficial/Lithic-CLI?style=flat&color=yellow" alt="Stars"></a>
