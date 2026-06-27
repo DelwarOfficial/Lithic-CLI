@@ -72,13 +72,15 @@ AI agents waste tokens reading your entire codebase. Lithic builds a live archit
 
 ### 🍏 Mac Users
 
-#### Installation
+#### Installation (single command)
 
 ```bash
-# Install via git clone (see setup below)
-# pip install lithic-cli (planned)
-# brew install lithic-cli (planned)
+uv tool install git+https://github.com/DelwarOfficial/Lithic-CLI.git
+# or
+pip install git+https://github.com/DelwarOfficial/Lithic-CLI.git
 ```
+
+See main 📦 Installation section for details and dev setup.
 
 #### Keyboard Shortcuts
 
@@ -94,22 +96,19 @@ AI agents waste tokens reading your entire codebase. Lithic builds a live archit
 
 - **Python version**: Ensure Python 3.12+ is installed (`python3 --version`)
 - **Permission denied**: Use `sudo` with caution, or install with `--user` flag
-- **Virtual environment**: Recommended to avoid dependency conflicts
-
-```bash
-git clone https://github.com/DelwarOfficial/Lithic-CLI.git
-cd Lithic-CLI
-uv sync
-```
+- **Headroom (opt)**: Rust build tools may be needed on Win for full speed. Falls back automatically.
 
 ### 🪟 Windows Users
 
-#### Installation
+#### Installation (single command)
 
 ```powershell
-# Install via git clone (see setup below)
-# pip install lithic-cli (planned)
+uv tool install git+https://github.com/DelwarOfficial/Lithic-CLI.git
+# or
+pip install git+https://github.com/DelwarOfficial/Lithic-CLI.git
 ```
+
+See main 📦 Installation section.
 
 #### Keyboard Shortcuts
 
@@ -125,27 +124,21 @@ uv sync
 
 - **Python path**: Ensure Python is in your PATH environment variable
 - **Long paths**: Enable long path support in Windows (registry or group policy)
-- **Virtual environment**: Use PowerShell for best experience
-
-```powershell
-git clone https://github.com/DelwarOfficial/Lithic-CLI.git
-cd Lithic-CLI
-uv sync
-```
+- **Headroom (opt)**: May need Rust/MSVC for full build. Built-in compressor always works.
 
 ### 🔧 Universal Guidelines
 
 #### Prerequisites
 
-- [ ] Python 3.12+ installed
-- [ ] [uv](https://docs.astral.sh/uv/) installed (`pip install uv` or `winget install astral.uv`)
-- [ ] Internet connection for first-time install
+- [ ] Python 3.12+
+- [ ] uv or pip
+- [ ] Internet for first install
 
 #### Troubleshooting
 
-1. **Command not found**: Check if Python scripts directory is in PATH
-2. **Permission errors**: Install with `--user` flag or use virtual environment
-3. **Graph generation fails**: Ensure working directory has read/write access
+1. **Command not found**: Ensure pip/uv tool bin dir in PATH (e.g. `python -m site --user-base` or uv tool path)
+2. **Permission errors**: Use `--user` or uv tool
+3. **Graph fails**: Run from a writable dir with code to index. `lithic stats` for debug.
 
 ---
 
@@ -258,38 +251,43 @@ More architecture details are available in [`docs/architecture.md`](docs/archite
 ### 📋 Requirements
 
 - 🐍 Python 3.12+
-- ⚡ [uv](https://github.com/astral-sh/uv) — Fast Python package installer
+- ⚡ [uv](https://github.com/astral-sh/uv) — Fast Python package installer (recommended) or pip
 - 🖥️ A shell environment (PowerShell, Terminal, or Bash)
 
-### 🚀 Install
+### 🚀 Install (single command)
 
-**Recommended (uv):**
+**uv tool (recommended - global `lithic` command):**
+
+```powershell
+uv tool install git+https://github.com/DelwarOfficial/Lithic-CLI.git
+lithic --help
+```
+
+**pip:**
+
+```powershell
+pip install git+https://github.com/DelwarOfficial/Lithic-CLI.git
+lithic --help
+```
+
+After install, `cd` into any project and run `lithic` directly. No `uv run`, no clone needed for usage.
+
+### For contributors / dev
 
 ```powershell
 git clone https://github.com/DelwarOfficial/Lithic-CLI.git
 cd Lithic-CLI
 uv sync
+uv run lithic --help
 ```
 
-**Alternative (pip):**
+### Optional extras (after install)
 
 ```powershell
-git clone https://github.com/DelwarOfficial/Lithic-CLI.git
-cd Lithic-CLI
-pip install -e .
-```
-
-### Optional extras
-
-```powershell
-# LLM providers (Anthropic, OpenAI)
-uv sync --extra llm
-
-# MCP server
-uv sync --extra mcp
-
-# Headroom compression accelerator
-uv sync --extra headroom
+# reinstall with extras
+pip install "git+https://github.com/DelwarOfficial/Lithic-CLI.git[llm,mcp,headroom]"
+# or for uv tool (reinstall)
+uv tool install --force --with "headroom-ai[proxy,code,mcp,relevance]" git+https://github.com/DelwarOfficial/Lithic-CLI.git
 ```
 
 On Windows, `headroom-ai` may require [Rust/MSVC build tools](https://rustup.rs/) when a pre-built wheel is unavailable. Lithic works without these extras by falling back to its built-in deterministic compressor.
@@ -298,31 +296,35 @@ On Windows, `headroom-ai` may require [Rust/MSVC build tools](https://rustup.rs/
 
 ## 🏃 Quick Start
 
+After single-command install above, run from any project:
+
 ```bash
 # 1. Index your codebase
-uv run lithic index .
+lithic index .
 
 # 2. Ask an architecture question
-uv run lithic ask "explain this project architecture"
+lithic ask "explain this project architecture"
 
 # 3. Explain any symbol
-uv run lithic explain "GraphifyAdapter"
+lithic explain "GraphifyAdapter"
 
 # 4. Find relationships between concepts
-uv run lithic path "GraphifyAdapter" "HeadroomAdapter"
+lithic path "GraphifyAdapter" "HeadroomAdapter"
 
 # 5. Compress large files (80% fewer tokens)
-uv run lithic compress-file README.md
+lithic compress-file README.md
 
 # 6. Review your changes concisely
-uv run lithic review
+lithic review
 
 # 7. Generate a commit message
-uv run lithic commit
+lithic commit
 
 # 8. Start the MCP server for AI agents
-uv run lithic mcp serve
+lithic mcp serve
 ```
+
+(If running from source checkout use `uv run lithic ...` instead.)
 
 ## CLI Commands
 
@@ -348,21 +350,7 @@ Lithic exposes its core capabilities as an MCP (Model Context Protocol) server, 
 
 ### Claude Desktop Setup
 
-Add the following to your Claude Desktop MCP configuration file (`mcp_config.json` or `claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "lithic": {
-      "command": "uv",
-      "args": ["run", "lithic", "mcp", "serve"],
-      "cwd": "/path/to/your/project"
-    }
-  }
-}
-```
-
-Or use the direct pip installation path:
+After installing with `uv tool` or `pip`, use the direct command:
 
 ```json
 {
@@ -375,6 +363,8 @@ Or use the direct pip installation path:
   }
 }
 ```
+
+(Dev / source checkout: use `"command": "uv", "args": ["run", "lithic", "mcp", "serve"]`)
 
 ### Available MCP Tools
 

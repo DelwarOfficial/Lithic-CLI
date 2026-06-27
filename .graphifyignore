@@ -1,0 +1,6 @@
+# Exclude vendored upstream sources and graph output from Lithic/Graphify index.
+# .gitignore is respected automatically; this adds more excludes.
+vendor/
+graphify-out/
+.cache/
+__pycache__/

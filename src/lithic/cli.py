@@ -148,6 +148,9 @@ def stats(ctx: click.Context) -> None:
     table.add_column("Key", style="cyan")
     table.add_column("Value", style="yellow")
     table.add_row("Graph exists", str(data["graph_exists"]))
+    g = data.get("graph", {})
+    table.add_row("Nodes", str(g.get("nodes", 0)))
+    table.add_row("Edges", str(g.get("edges", 0)))
     table.add_row("History count", str(data["history_count"]))
     table.add_row("Compression calls", str(compression["calls"]))
     if "savings_ratio" in compression:

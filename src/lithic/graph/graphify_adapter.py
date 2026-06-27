@@ -17,7 +17,7 @@ from lithic.tools.audit import subprocess as audit_subprocess
 
 _LOG = logging.getLogger(__name__)
 
-SKIP_DIRS = {".git", ".venv", "venv", "node_modules", "dist", "build", ".cache", "__pycache__"}
+SKIP_DIRS = {".git", ".venv", "venv", "node_modules", "dist", "build", ".cache", "__pycache__", "vendor", "graphify-out"}
 GRAPH_OUTPUT_MARKER = ".lithic-graph-output"
 GRAPH_OUTPUT_DIR_NAMES = {"graphify-out", ".graphify-out"}
 

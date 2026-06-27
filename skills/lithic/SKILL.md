@@ -1,37 +1,42 @@
 ---
 name: lithic
 description: >
-  Graph-first codebase intelligence via Lithic CLI. Use when the user says "lithic",
-  "/lithic", "use lithic", "graph-first", or wants codebase understanding via architecture
-  graph instead of raw file reading. Also use for compressing large output, generating commit
-  messages, and reviewing diffs with graph context.
+  Graph-first + caveman full terse. Use /lithic, "lithic", "use lithic" to instantly activate
+  graph-first codebase intelligence with full caveman-style output. Use for architecture graph,
+  compress, review, commit. Triggers on /lithic for instant caveman + lithic mode.
 ---
 
 ## Activation
 
-Persistent. Active every turn after `/lithic`. Off only: "stop lithic" or "normal mode".
+Persistent. /lithic instantly activates lithic graph-first + caveman full terse. Active every response. 
+Follow full caveman rules: drop articles/fillers/pleasantries. Fragments OK. Short synonyms. 
+Preserve code, paths, errors exact. Off only: "stop lithic" or "normal mode".
 
 ## Core Principle
 
-Graph first, file second. Before exploring code by reading files, query the architecture graph.
-This saves tokens and gives structural context that raw file reads miss.
+Graph first, file second. Caveman full terse output. Before broad reads: query graph. Use `uv run lithic` tools for questions. Terse. Exact technical.
+
+## Response Rules (caveman full)
+
+Drop: articles (a/an/the), filler (just/really/basically/actually/simply), pleasantries, hedging.
+Fragments OK. Short synonyms. Code blocks, paths, errors unchanged.
+Pattern: [thing] [action] [reason]. [next].
+Use `uv run lithic` for all graph, ask, review actions.
 
 ## Workflow
 
-All commands use `uv run lithic` prefix.
-
-1. **First activation**: Run `uv run lithic index .` to build/refresh the graph.
-2. **Before broad questions**: Use `uv run lithic ask "<question>"` — graph-guided Q&A.
-3. **Before explaining concepts**: Use `uv run lithic explain "<symbol|module|file>"`.
-4. **Before finding connections**: Use `uv run lithic path <source> <target>`.
-5. **Before large edits**: Use `uv run lithic edit "<task description>"` for read-only orientation.
-6. **For diff review**: Run `uv run lithic review` — compressed, severity-ranked findings.
-7. **For commit messages**: Run `uv run lithic commit` — Conventional Commits from staged/working changes.
-8. **For large files**: Run `uv run lithic compress-file <path>` to compress before analysis.
+1. Index first if needed: `uv run lithic index .`
+2. Ask: `uv run lithic ask "<q>"`
+3. Explain: `uv run lithic explain "<thing>"`
+4. Path: `uv run lithic path <a> <b>`
+5. Edit orient: `uv run lithic edit "<task>"`
+6. Review: `uv run lithic review`
+7. Commit: `uv run lithic commit`
+8. Compress: `uv run lithic compress-file <path>`
 
 ## Command Reference
 
-All commands require `uv run` prefix (project uses uv as package manager).
+All via `uv run lithic <cmd>`. Use when agent needs graph or project cmds.
 
 | Task | Command |
 |------|---------|
@@ -48,13 +53,12 @@ All commands require `uv run` prefix (project uses uv as package manager).
 
 ## Rules
 
-- Run `uv run lithic index .` if graph is stale or doesn't exist. Check `uv run lithic stats` first if unsure.
-- Prefer `uv run lithic ask` over raw `grep`/`read_file` for architecture-level questions.
-- Use `uv run lithic edit` before implementing changes that span multiple files.
-- Use `uv run lithic review` before committing — severity-ranked findings catch issues.
-- Use `uv run lithic commit` for commit messages — follows Conventional Commits.
-- For code-level details (exact line numbers, specific variable names), combine graph context with targeted file reads.
-- Lithic supplements, not replaces, direct file access. Use both.
+- Always follow Response Rules (caveman full) for final output.
+- Run `uv run lithic index .` if graph stale. Check stats first.
+- Prefer `uv run lithic ask` for architecture questions.
+- Use `uv run lithic edit` before multi-file edits.
+- Use `uv run lithic review` / `commit` before commit.
+- Lithic + direct reads together. Graph first for broad.
 
 ## When NOT to Use Lithic
 
@@ -64,6 +68,6 @@ All commands require `uv run` prefix (project uses uv as package manager).
 
 ## Integration with Other Skills
 
-- Combine with `/caveman` for compressed graph-first responses.
-- `lithic review` output pairs well with caveman's terse format.
-- `lithic commit` generates proper Conventional Commits regardless of communication style.
+- /lithic alone = graph-first + full caveman terse. No need separate /caveman.
+- `lithic review` + `lithic commit` use built-in terse + conventional formats.
+- Combine further only if extra modes wanted.

@@ -1,6 +1,15 @@
 # Setup
 
-Windows PowerShell:
+Single command install (recommended):
+
+```powershell
+uv tool install git+https://github.com/DelwarOfficial/Lithic-CLI.git
+lithic --help
+# or
+pip install git+https://github.com/DelwarOfficial/Lithic-CLI.git
+```
+
+For dev / from source:
 
 ```powershell
 git clone https://github.com/DelwarOfficial/Lithic-CLI.git
@@ -9,7 +18,7 @@ uv sync
 uv run lithic --help
 ```
 
-Optional Headroom install:
+Optional Headroom:
 
 ```powershell
 uv sync --extra headroom
