@@ -1,5 +1,5 @@
 [project]
-name = "lithic"
+name = "lithic-cli"
 version = "0.1.0"
 description = "Adapter-first unified coding agent combining graph indexing, compression, and concise response policy."
 readme = "README.md"
@@ -62,6 +62,9 @@ default-groups = ["dev"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+
+[tool.uv.build-backend]
+module-name = "lithic"
 
 [build-system]
 requires = ["uv_build>=0.11.19,<0.12.0"]

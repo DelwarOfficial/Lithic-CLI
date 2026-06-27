@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from pathlib import Path
+
+_LOG = logging.getLogger(__name__)
 
 HIGH_RISK_PATTERNS: list[re.Pattern] = [
     re.compile(r"install\.sh"),
@@ -34,8 +37,12 @@ class RiskScanner:
                             "pattern": pattern.pattern,
                             "content": line.strip(),
                         })
-        except Exception:
-            pass
+        except PermissionError:
+            _LOG.warning("permission denied reading %s", file_path)
+        except UnicodeDecodeError:
+            _LOG.warning("encoding error reading %s", file_path)
+        except OSError as exc:
+            _LOG.warning("error reading %s: %s", file_path, exc)
         return findings
 
     def scan_directory(self, directory: Path | None = None) -> list[dict[str, str]]:

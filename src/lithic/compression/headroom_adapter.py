@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass
 from typing import Any
+
+_LOG = logging.getLogger(__name__)
 
 CODE_BLOCK_RE = re.compile(r"(```.*?```)", re.DOTALL)
 ERROR_RE = re.compile(r"(?i)(error|exception|traceback|failed|fatal|warning)")
@@ -39,7 +42,10 @@ class HeadroomAdapter:
 
             self._headroom_compress = headroom_compress
             self._stats.headroom_available = True
-        except Exception:
+        except ImportError:
+            self._headroom_compress = None
+        except Exception as exc:
+            _LOG.warning("headroom import failed: %s", exc)
             self._headroom_compress = None
 
     def compress_text(self, text: str, label: str | None = None) -> str:
@@ -58,8 +64,8 @@ class HeadroomAdapter:
                 compressed = list(result.messages)
                 self._record(str(messages), str(compressed))
                 return compressed
-            except Exception:
-                pass
+            except Exception as exc:
+                _LOG.warning("headroom compress_messages failed, using fallback: %s", exc)
         out: list[dict[str, Any]] = []
         for message in messages:
             copy = dict(message)
@@ -98,7 +104,8 @@ class HeadroomAdapter:
             if isinstance(content, str) and content:
                 prefix = f"[compressed:{label}]\n" if label else ""
                 return prefix + content
-        except Exception:
+        except Exception as exc:
+            _LOG.warning("headroom compression failed, using fallback: %s", exc)
             return None
         return None
 

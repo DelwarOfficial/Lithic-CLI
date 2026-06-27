@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 import time
 from pathlib import Path
@@ -28,7 +29,7 @@ _DESTRUCTIVE_RULES: set[tuple[str, str]] = {
 def _is_destructive(command: list[str]) -> bool:
     if not command:
         return False
-    cmd0 = command[0].lower()
+    cmd0 = os.path.basename(command[0]).lower()
     args_lower = [a.lower() for a in command[1:]]
     for base, flag in _DESTRUCTIVE_RULES:
         if cmd0 == base:

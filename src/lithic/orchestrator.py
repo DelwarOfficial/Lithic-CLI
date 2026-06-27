@@ -100,9 +100,14 @@ class Orchestrator:
         self.events.append("test.requested")
         return "Tests should be run after edits."
 
+    _MAX_COMPRESS_BYTES = 100_000_000
+
     def compress_file(self, file_path: str) -> str:
         """Compress a file safely within the project root."""
         path = resolve_path_within_root(self.config.project_root, Path(file_path))
+        size = path.stat().st_size
+        if size > self._MAX_COMPRESS_BYTES:
+            return f"file too large ({size} bytes > {self._MAX_COMPRESS_BYTES} limit)"
         content = path.read_text(encoding="utf-8", errors="replace")
         return self.compression.compress_tool_output(content)
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import shlex
 import shutil
@@ -12,6 +13,8 @@ import time
 from pathlib import Path
 
 from lithic.tools.audit import subprocess as audit_subprocess
+
+_LOG = logging.getLogger(__name__)
 
 SKIP_DIRS = {".git", ".venv", "venv", "node_modules", "dist", "build", ".cache", "__pycache__"}
 
@@ -130,13 +133,13 @@ class GraphifyAdapter:
                 raise RuntimeError(f"refusing to follow symlink during rmtree: {entry}")
         for entry in path.rglob("*"):
             try:
-                if entry.is_dir():
-                    entry.chmod(entry.stat().st_mode | stat.S_IWRITE)
-                else:
-                    entry.chmod(entry.stat().st_mode | stat.S_IWRITE)
-            except Exception:
-                pass
-        shutil.rmtree(path, onexc=lambda *a: None)
+                entry.chmod(entry.stat().st_mode | stat.S_IWRITE)
+            except PermissionError as exc:
+                _LOG.warning("cannot chmod %s: %s", entry, exc)
+        def _on_rm_error(*a: object) -> None:
+            _LOG.warning("rmtree error: %s", a[1] if len(a) > 1 else a)
+
+        shutil.rmtree(path, onexc=_on_rm_error)
 
     def _graph_arg(self) -> str:
         try:

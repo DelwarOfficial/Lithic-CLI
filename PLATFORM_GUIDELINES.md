@@ -6,10 +6,10 @@
 
 ```bash
 # Install via pip (recommended)
-pip install lithic
+pip install lithic-cli
 
 # Or via Homebrew (if available)
-brew install lithic
+brew install lithic-cli
 ```
 
 ### Keyboard Shortcuts
@@ -31,7 +31,7 @@ brew install lithic
 ```bash
 python3 -m venv venv
 source venv/bin/activate
-pip install lithic
+pip install lithic-cli
 ```
 
 ---
@@ -42,7 +42,7 @@ pip install lithic
 
 ```powershell
 # Install via pip (recommended)
-pip install lithic
+pip install lithic-cli
 
 # Verify installation
 lithic --version
@@ -67,7 +67,7 @@ lithic --version
 ```powershell
 python -m venv venv
 .\venv\Scripts\Activate
-pip install lithic
+pip install lithic-cli
 ```
 
 ---
