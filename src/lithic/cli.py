@@ -2,6 +2,12 @@
 
 from __future__ import annotations
 
+import sys
+
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+
 from pathlib import Path
 from typing import Any, cast
 
@@ -14,7 +20,7 @@ from lithic.config import AgentConfig
 from lithic.orchestrator import Orchestrator
 from lithic.updater import UpstreamChecker
 
-console = Console()
+console = Console(emoji=False)
 
 
 @click.group()
