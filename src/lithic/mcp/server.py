@@ -11,6 +11,7 @@ from pydantic import BaseModel
 
 from lithic.compression.headroom_adapter import HeadroomAdapter
 from lithic.orchestrator import Orchestrator
+from lithic.tools.audit import input_rejected, tool_call
 
 _MAX_INPUT_CHARS = 100_000
 _MAX_CALLS_PER_WINDOW = 60
@@ -118,33 +119,52 @@ def build_server() -> Any:
     @server.call_tool()
     async def call_tool(name: str, arguments: dict[str, Any] | None = None) -> list[Any]:
         args = arguments or {}
+        start = time.monotonic()
         for v in args.values():
             if isinstance(v, str) and len(v) > _MAX_INPUT_CHARS:
+                input_rejected(name, f"input exceeds {_MAX_INPUT_CHARS} chars")
+                tool_call(name, args, False, time.monotonic() - start, "input too large")
                 return _tool_result(f"error: input exceeds {_MAX_INPUT_CHARS} chars")
         try:
             limiter.check()
             if name == "lithic_graph_query":
                 q = _check_input_size(QueryInput(**args).question, _QUERY_SIZE_LIMIT, "question")
-                return _tool_result(orch.ask(q))
+                result = orch.ask(q)
+                tool_call(name, args, True, time.monotonic() - start)
+                return _tool_result(result)
             if name == "lithic_graph_explain":
                 c = _check_input_size(ExplainInput(**args).concept, _QUERY_SIZE_LIMIT, "concept")
-                return _tool_result(orch.explain(c))
+                result = orch.explain(c)
+                tool_call(name, args, True, time.monotonic() - start)
+                return _tool_result(result)
             if name == "lithic_graph_path":
                 data = PathInput(**args)
                 _check_input_size(data.source, _QUERY_SIZE_LIMIT, "source")
                 _check_input_size(data.target, _QUERY_SIZE_LIMIT, "target")
-                return _tool_result(orch.path_between(data.source, data.target))
+                result = orch.path_between(data.source, data.target)
+                tool_call(name, args, True, time.monotonic() - start)
+                return _tool_result(result)
             if name == "lithic_compress":
                 t = _check_input_size(CompressInput(**args).text, _COMPRESS_SIZE_LIMIT, "text")
-                return _tool_result(compressor.compress_text(t))
+                result = compressor.compress_text(t)
+                tool_call(name, args, True, time.monotonic() - start)
+                return _tool_result(result)
             if name == "lithic_review":
-                return _tool_result(orch.review())
+                result = orch.review()
+                tool_call(name, args, True, time.monotonic() - start)
+                return _tool_result(result)
             if name == "lithic_commit":
-                return _tool_result(orch.commit())
+                result = orch.commit()
+                tool_call(name, args, True, time.monotonic() - start)
+                return _tool_result(result)
             if name == "lithic_stats":
-                return _tool_result(json.dumps(orch.stats(), indent=2))
+                result = json.dumps(orch.stats(), indent=2)
+                tool_call(name, args, True, time.monotonic() - start)
+                return _tool_result(result)
+            tool_call(name, args, False, time.monotonic() - start, "unknown tool")
             return _tool_result(f"unknown tool: {name}")
         except Exception as exc:
+            tool_call(name, args, False, time.monotonic() - start, str(exc))
             return _tool_result(f"error: {exc}")
 
     return server

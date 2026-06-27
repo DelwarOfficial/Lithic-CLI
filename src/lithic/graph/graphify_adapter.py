@@ -8,7 +8,10 @@ import shlex
 import shutil
 import stat
 import subprocess
+import time
 from pathlib import Path
+
+from lithic.tools.audit import subprocess as audit_subprocess
 
 SKIP_DIRS = {".git", ".venv", "venv", "node_modules", "dist", "build", ".cache", "__pycache__"}
 
@@ -145,6 +148,7 @@ class GraphifyAdapter:
         exe = shutil.which(args[0])
         command = args if exe is not None else ["uv", "run", *args]
         env = {"PATH": os.environ.get("PATH", ""), "GRAPHIFY_OUT": str(self.graph_output_dir)}
+        start = time.monotonic()
         try:
             result = subprocess.run(
                 command,
@@ -156,14 +160,19 @@ class GraphifyAdapter:
                 timeout=timeout,
             )
         except subprocess.TimeoutExpired as exc:
+            elapsed = time.monotonic() - start
+            audit_subprocess(command, -1, elapsed, f"timed out after {timeout}s")
             rendered = shlex.join(command)
             raise RuntimeError(
                 f"Graphify command timed out after {timeout}s ({rendered})"
             ) from exc
+        elapsed = time.monotonic() - start
         output = (result.stdout or "").strip()
         error = (result.stderr or "").strip()
         if result.returncode != 0:
             detail = error or output or "no output"
             rendered = shlex.join(command)
+            audit_subprocess(command, result.returncode, elapsed, detail)
             raise RuntimeError(f"Graphify command failed ({rendered}): {detail}")
+        audit_subprocess(command, result.returncode, elapsed)
         return output or error
