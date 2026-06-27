@@ -68,6 +68,8 @@ class Orchestrator:
             return context
 
     def ask(self, question: str) -> str:
+        if not question.strip():
+            return "Please provide a question."
         self.events.append("graph.query")
         raw = self.graph.query(question)
         if self.provider() is not None:
@@ -75,6 +77,8 @@ class Orchestrator:
         return self.policy.shape(raw, self.config.response_mode)
 
     def explain(self, concept: str) -> str:
+        if not concept.strip():
+            return "Please provide a concept to explain."
         self.events.append("graph.explain")
         raw = self.graph.explain(concept)
         if self.provider() is not None:
@@ -82,6 +86,8 @@ class Orchestrator:
         return self.policy.shape(raw, self.config.response_mode)
 
     def path_between(self, source: str, target: str) -> str:
+        if not source.strip() or not target.strip():
+            return "Please provide both source and target."
         self.events.append("graph.path")
         return self.policy.shape(
             self.graph.path_between(source, target),
@@ -136,7 +142,7 @@ class Orchestrator:
             with path.open("r", encoding="utf-8", errors="replace") as fh:
                 head = fh.read(1_000_000)
                 return self.compression.compress_tool_output(
-                    head + f"\n... [file truncated: {size} bytes, showing first 1MB] ..."
+                    head + f"\n... [file truncated: {size} bytes, showing first {len(head)} chars] ..."
                 )
         content = path.read_text(encoding="utf-8", errors="replace")
         return self.compression.compress_tool_output(content)

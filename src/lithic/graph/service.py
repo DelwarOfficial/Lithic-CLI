@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
+from threading import Lock
 
 from lithic.graph.graphify_adapter import GraphifyAdapter
 
@@ -15,23 +16,32 @@ class _TTLCache:
         self._ttl = ttl
         self._maxsize = maxsize
         self._store: dict[str, tuple[float, str]] = {}
+        self._lock = Lock()
 
     def get(self, key: str) -> str | None:
-        entry = self._store.get(key)
-        if entry is None:
-            return None
-        ts, value = entry
-        if time.monotonic() - ts > self._ttl:
-            del self._store[key]
-            return None
-        self._store[key] = (time.monotonic(), value)
-        return value
+        with self._lock:
+            entry = self._store.get(key)
+            if entry is None:
+                return None
+            ts, value = entry
+            if time.monotonic() - ts > self._ttl:
+                try:
+                    del self._store[key]
+                except KeyError:
+                    pass
+                return None
+            self._store[key] = (time.monotonic(), value)
+            return value
 
     def set(self, key: str, value: str) -> None:
-        if len(self._store) >= self._maxsize:
-            oldest = min(self._store, key=lambda k: self._store[k][0])
-            del self._store[oldest]
-        self._store[key] = (time.monotonic(), value)
+        with self._lock:
+            if len(self._store) >= self._maxsize:
+                try:
+                    oldest = min(self._store, key=lambda k: self._store[k][0])
+                    del self._store[oldest]
+                except KeyError:
+                    pass
+            self._store[key] = (time.monotonic(), value)
 
 
 class GraphService:

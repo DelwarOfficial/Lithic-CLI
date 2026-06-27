@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
+import threading
 import time
 from typing import Any
 
@@ -12,12 +14,36 @@ from lithic.compression.headroom_adapter import HeadroomAdapter
 from lithic.orchestrator import Orchestrator
 from lithic.tools.audit import input_rejected, tool_call
 
-_MAX_INPUT_CHARS = int(os.getenv("LITHIC_MCP_MAX_INPUT_CHARS", "100_000"))
-_MAX_CALLS_PER_WINDOW = int(os.getenv("LITHIC_MCP_MAX_CALLS", "60"))
-_WINDOW_SEC = float(os.getenv("LITHIC_MCP_WINDOW_SEC", "60.0"))
+_log = logging.getLogger("lithic.mcp")
 
-_QUERY_SIZE_LIMIT = int(os.getenv("LITHIC_MCP_QUERY_SIZE_LIMIT", "2000"))
-_COMPRESS_SIZE_LIMIT = int(os.getenv("LITHIC_MCP_COMPRESS_SIZE_LIMIT", "500_000"))
+def _env_int(key: str, default: int) -> int:
+    val = os.getenv(key)
+    if val is None:
+        return default
+    try:
+        return int(val)
+    except ValueError:
+        _log.warning("invalid %s=%r, using default %d", key, val, default)
+        return default
+
+
+def _env_float(key: str, default: float) -> float:
+    val = os.getenv(key)
+    if val is None:
+        return default
+    try:
+        return float(val)
+    except ValueError:
+        _log.warning("invalid %s=%r, using default %g", key, val, default)
+        return default
+
+
+_MAX_INPUT_CHARS = _env_int("LITHIC_MCP_MAX_INPUT_CHARS", 100_000)
+_MAX_CALLS_PER_WINDOW = _env_int("LITHIC_MCP_MAX_CALLS", 60)
+_WINDOW_SEC = _env_float("LITHIC_MCP_WINDOW_SEC", 60.0)
+
+_QUERY_SIZE_LIMIT = _env_int("LITHIC_MCP_QUERY_SIZE_LIMIT", 2000)
+_COMPRESS_SIZE_LIMIT = _env_int("LITHIC_MCP_COMPRESS_SIZE_LIMIT", 500_000)
 
 
 class _RateLimiter:
@@ -27,16 +53,18 @@ class _RateLimiter:
         self.max_calls = max_calls
         self.window = window
         self._calls: list[float] = []
+        self._lock = threading.Lock()
 
     def check(self) -> None:
         now = time.monotonic()
         cutoff = now - self.window
-        self._calls = [t for t in self._calls if t > cutoff]
-        if len(self._calls) >= self.max_calls:
-            raise RuntimeError(
-                f"rate limit exceeded ({self.max_calls} calls per {self.window:.0f}s)"
-            )
-        self._calls.append(now)
+        with self._lock:
+            self._calls = [t for t in self._calls if t > cutoff]
+            if len(self._calls) >= self.max_calls:
+                raise RuntimeError(
+                    f"rate limit exceeded ({self.max_calls} calls per {self.window:.0f}s)"
+                )
+            self._calls.append(now)
 
 
 def _tool_result(text: str) -> list[Any]:
@@ -155,8 +183,7 @@ def build_server() -> Any:
             tool_call(name, args, False, time.monotonic() - start, "unknown tool")
             return _tool_result(f"unknown tool: {name}")
         except Exception as exc:
-            import logging
-            logging.getLogger("lithic.mcp").warning("tool call failed: %s", exc)
+            _log.warning("tool call failed: %s", exc)
             tool_call(name, args, False, time.monotonic() - start, str(exc))
             return _tool_result("error: internal error")
 

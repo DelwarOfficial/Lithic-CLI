@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
+import threading
 from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Any
@@ -40,6 +41,7 @@ class HeadroomAdapter:
         self._stats = CompressionStats()
         self._cache: OrderedDict[int, str] = OrderedDict()
         self._cache_size = cache_size
+        self._lock = threading.Lock()
         try:
             from headroom import compress as headroom_compress
 
@@ -55,16 +57,18 @@ class HeadroomAdapter:
         return hash((text, max_chars))
 
     def _cache_get(self, key: int) -> str | None:
-        value = self._cache.get(key)
-        if value is not None:
-            self._cache.move_to_end(key)
-        return value
+        with self._lock:
+            value = self._cache.get(key)
+            if value is not None:
+                self._cache.move_to_end(key)
+            return value
 
     def _cache_put(self, key: int, value: str) -> None:
-        self._cache[key] = value
-        self._cache.move_to_end(key)
-        while len(self._cache) > self._cache_size:
-            self._cache.popitem(last=False)
+        with self._lock:
+            self._cache[key] = value
+            self._cache.move_to_end(key)
+            while len(self._cache) > self._cache_size:
+                self._cache.popitem(last=False)
 
     def compress_text(self, text: str, label: str | None = None) -> str:
         key = self._cache_key(text)
@@ -171,12 +175,17 @@ class HeadroomAdapter:
             middle = deduped[:120]
         body = "\n".join([*head, *middle, *tail])
         block_text = "\n\n[preserved code blocks]\n" + "\n".join(protected) if protected else ""
-        if len(body) + len(block_text) > max_chars:
-            body = body[: max(1, max_chars - len(block_text))]
+        budget = max_chars - len(block_text)
+        if budget < 1:
+            block_text = block_text[: max_chars - 100] + "\n... [code blocks truncated]"
+            budget = max_chars - len(block_text)
+        if len(body) > budget:
+            body = body[: max(1, budget)]
         return body + block_text
 
     def _record(self, original: str, compressed: str) -> str:
-        self._stats.calls += 1
-        self._stats.original_chars += len(original)
-        self._stats.compressed_chars += len(compressed)
+        with self._lock:
+            self._stats.calls += 1
+            self._stats.original_chars += len(original)
+            self._stats.compressed_chars += len(compressed)
         return compressed

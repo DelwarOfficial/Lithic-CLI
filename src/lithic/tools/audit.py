@@ -7,6 +7,7 @@ import logging
 import os
 import re
 import time
+import threading
 from collections.abc import Callable
 from typing import Any, TypeVar
 
@@ -14,6 +15,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 _LOG = logging.getLogger("lithic.audit")
 _LOG_HANDLER: logging.Handler | None = None
+_LOCK = threading.Lock()
 
 _SECRET_KEY_RE = re.compile(
     r"(?i)(api[_-]?key|token|secret|password|authorization|bearer|auth[_-]?token)"
@@ -31,18 +33,19 @@ _URL_CREDENTIALS_RE = re.compile(r"(://)([^:]+):([^@]+)@")
 
 def _setup() -> None:
     global _LOG_HANDLER
-    if _LOG_HANDLER is not None:
-        return
-    _LOG.setLevel(logging.INFO)
-    target = os.getenv("LITHIC_AUDIT_LOG", "")
-    if target:
-        handler: logging.Handler = logging.FileHandler(target, encoding="utf-8")
-    else:
-        handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter("%(message)s"))
-    _LOG.addHandler(handler)
-    _LOG.propagate = False
-    _LOG_HANDLER = handler
+    with _LOCK:
+        if _LOG_HANDLER is not None:
+            return
+        _LOG.setLevel(logging.INFO)
+        target = os.getenv("LITHIC_AUDIT_LOG", "")
+        if target:
+            handler: logging.Handler = logging.FileHandler(target, encoding="utf-8")
+        else:
+            handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter("%(message)s"))
+        _LOG.addHandler(handler)
+        _LOG.propagate = False
+        _LOG_HANDLER = handler
 
 
 def _redact(value: str) -> str:
