@@ -18,9 +18,9 @@ jobs:
       - name: Install dependencies
         run: uv sync --group dev --frozen
       - name: Lint
-        run: uv run ruff check src/lithic/ tests/
+        run: uv run ruff check src/lithic_cli/ tests/
       - name: Typecheck
-        run: uv run mypy src/lithic/
+        run: uv run mypy src/lithic_cli/
 
   test:
     strategy:
