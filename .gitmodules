@@ -1,3 +1,7 @@
+# Submodules are locked to specific commit SHAs stored in upstream.lock.yml
+# Do NOT run `git submodule update --remote` without updating the SHA record
+# Run: git -C vendor/<name> rev-parse HEAD to get current SHA
+
 [submodule "vendor/graphify"]
 	path = vendor/graphify
 	url = https://github.com/safishamsi/graphify
