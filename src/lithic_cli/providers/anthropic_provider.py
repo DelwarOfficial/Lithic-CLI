@@ -20,7 +20,7 @@ class AnthropicProvider(BaseProvider):
             raise RuntimeError("ANTHROPIC_API_KEY is not set")
         from anthropic import Anthropic
 
-        client = Anthropic(api_key=api_key)
+        client = Anthropic(api_key=api_key, timeout=30.0)
         response = client.messages.create(
             model=self.model,
             max_tokens=kwargs.pop("max_tokens", 1024),

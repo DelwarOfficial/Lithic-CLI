@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lithic-cli
+  labels:
+    app: lithic-cli
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: lithic-cli
+  template:
+    metadata:
+      labels:
+        app: lithic-cli
+    spec:
+      serviceAccountName: lithic-cli
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: lithic-cli
+        image: lithic-cli:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: mcp
+        env:
+        - name: LITHIC_GRAPH_DIR
+          value: "/app/graphify-out"
+        - name: LITHIC_PROVIDER
+          valueFrom:
+            secretKeyRef:
+              name: lithic-secrets
+              key: provider
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: lithic-secrets
+              key: openai-api-key
+              optional: true
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: lithic-secrets
+              key: anthropic-api-key
+              optional: true
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: graph-storage
+          mountPath: /app/graphify-out
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: graph-storage
+        emptyDir:
+          sizeLimit: 10Gi
+      - name: tmp
+        emptyDir:
+          sizeLimit: 1Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: lithic-cli
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lithic-cli-service
+  labels:
+    app: lithic-cli
+spec:
+  selector:
+    app: lithic-cli
+  ports:
+  - name: mcp
+    port: 8000
+    targetPort: 8000
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: lithic-cli-netpol
+spec:
+  podSelector:
+    matchLabels:
+      app: lithic-cli
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: lithic-clients
+    ports:
+    - protocol: TCP
+      port: 8000
+  egress:
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443  # HTTPS to LLM providers
+    - protocol: TCP  
+      port: 53   # DNS
+    - protocol: UDP
+      port: 53   # DNS

@@ -20,7 +20,7 @@ class OpenAIProvider(BaseProvider):
             raise RuntimeError("OPENAI_API_KEY is not set")
         from openai import OpenAI
 
-        client = OpenAI(api_key=api_key)
+        client = OpenAI(api_key=api_key, timeout=30.0)
         response = client.chat.completions.create(
             model=self.model,
             messages=cast(Any, messages),
