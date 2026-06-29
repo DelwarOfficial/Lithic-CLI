@@ -5,42 +5,42 @@ import pytest
 from lithic_cli.config import AgentConfig
 
 
-def test_valid_mode_accepted() -> None:
-    c = AgentConfig(project_root=Path.cwd(), graph_output_dir=Path.cwd(), response_mode="concise")
+def test_valid_mode_accepted(tmp_path: Path) -> None:
+    c = AgentConfig(project_root=tmp_path, graph_output_dir=tmp_path, response_mode="concise")
     assert c.response_mode == "concise"
 
 
-def test_valid_caveman_mode_accepted() -> None:
+def test_valid_caveman_mode_accepted(tmp_path: Path) -> None:
     c = AgentConfig(
-        project_root=Path.cwd(),
-        graph_output_dir=Path.cwd(),
+        project_root=tmp_path,
+        graph_output_dir=tmp_path,
         response_mode="caveman_full",
     )
     assert c.response_mode == "caveman_full"
 
 
-def test_invalid_mode_rejected() -> None:
+def test_invalid_mode_rejected(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="unknown response mode"):
-        AgentConfig(project_root=Path.cwd(), graph_output_dir=Path.cwd(), response_mode="bogus")
+        AgentConfig(project_root=tmp_path, graph_output_dir=tmp_path, response_mode="bogus")
 
 
-def test_default_provider_is_local() -> None:
-    c = AgentConfig(project_root=Path.cwd(), graph_output_dir=Path.cwd())
+def test_default_provider_is_local(tmp_path: Path) -> None:
+    c = AgentConfig(project_root=tmp_path, graph_output_dir=tmp_path)
     assert c.provider == "local"
 
 
-def test_default_model_is_gpt() -> None:
-    c = AgentConfig(project_root=Path.cwd(), graph_output_dir=Path.cwd())
+def test_default_model_is_gpt(tmp_path: Path) -> None:
+    c = AgentConfig(project_root=tmp_path, graph_output_dir=tmp_path)
     assert c.model == "gpt-4.1-mini"
 
 
-def test_default_response_mode_concise() -> None:
-    c = AgentConfig(project_root=Path.cwd(), graph_output_dir=Path.cwd())
+def test_default_response_mode_concise(tmp_path: Path) -> None:
+    c = AgentConfig(project_root=tmp_path, graph_output_dir=tmp_path)
     assert c.response_mode == "concise"
 
 
-def test_verbose_defaults_false() -> None:
-    c = AgentConfig(project_root=Path.cwd(), graph_output_dir=Path.cwd())
+def test_verbose_defaults_false(tmp_path: Path) -> None:
+    c = AgentConfig(project_root=tmp_path, graph_output_dir=tmp_path)
     assert c.verbose is False
 
 
