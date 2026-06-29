@@ -12,20 +12,20 @@ Lithic has three independent layers:
 
 | Path | Role |
 |------|------|
-| `lithic_cli/cli.py` | Click CLI — command definitions, global flags |
-| `lithic_cli/orchestrator.py` | Orchestrator — wires graph + LLM + compression + policy |
-| `lithic_cli/graph/service.py` | GraphService — delegates to GraphifyAdapter |
-| `lithic_cli/graph/graphify_adapter.py` | Subprocess wrapper around `graphify` CLI |
-| `lithic_cli/compression/headroom_adapter.py` | Compression adapter with Headroom or fallback |
-| `lithic_cli/policy/response_policy.py` | Output shaping — risk detection, commit, review, conciseness |
-| `lithic_cli/providers/service.py` | LLMService — provider map, factory, completion |
-| `lithic_cli/providers/*.py` | Provider wrappers (OpenAI, Anthropic, Ollama, OpenRouter) |
-| `lithic_cli/tools/shell.py` | Safe subprocess runner with destructive-command detection |
-| `lithic_cli/tools/audit.py` | JSON audit logging with secret redaction |
-| `lithic_cli/tools/fs.py` | Path safety — `resolve_path_within_root()` |
-| `lithic_cli/mcp/server.py` | MCP stdio server — exposes graph, compress, review, commit tools |
-| `lithic_cli/config.py` | `AgentConfig` — env-driven configuration |
-| `lithic_cli/updater/` | Upstream pin validation |
+| `src/lithic_cli/cli.py` | Click CLI — command definitions, global flags |
+| `src/lithic_cli/orchestrator.py` | Orchestrator — wires graph + LLM + compression + policy |
+| `src/lithic_cli/graph/service.py` | GraphService — delegates to GraphifyAdapter |
+| `src/lithic_cli/graph/graphify_adapter.py` | Subprocess wrapper around `graphify` CLI |
+| `src/lithic_cli/compression/headroom_adapter.py` | Compression adapter with Headroom or fallback |
+| `src/lithic_cli/policy/response_policy.py` | Output shaping — risk detection, commit, review, conciseness |
+| `src/lithic_cli/providers/service.py` | LLMService — provider map, factory, completion |
+| `src/lithic_cli/providers/*.py` | Provider wrappers (OpenAI, Anthropic, Ollama, OpenRouter) |
+| `src/lithic_cli/tools/shell.py` | Safe subprocess runner with destructive-command detection |
+| `src/lithic_cli/tools/audit.py` | JSON audit logging with secret redaction |
+| `src/lithic_cli/tools/fs.py` | Path safety — `resolve_path_within_root()` |
+| `src/lithic_cli/mcp/server.py` | MCP stdio server — exposes graph, compress, review, commit tools |
+| `src/lithic_cli/config.py` | `AgentConfig` — env-driven configuration |
+| `src/lithic_cli/updater/` | Upstream pin validation |
 
 ## Data flow
 
