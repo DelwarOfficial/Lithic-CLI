@@ -1,4 +1,4 @@
-.PHONY: test lint typecheck clean install docs
+.PHONY: test lint typecheck clean install docs coverage
 
 install:
 	uv sync --group dev
@@ -23,5 +23,8 @@ docs:
 
 bench:
 	python benchmarks/bench_compression.py
+
+coverage:
+	uv run pytest tests/ --cov=lithic_cli --cov-report=term-missing --cov-report=html
 
 all: lint test typecheck

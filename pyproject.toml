@@ -50,6 +50,7 @@ dev = [
     "pdoc>=14.0.0",
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
+    "pytest-cov>=5.0.0",
     "ruff>=0.5.0",
 ]
 
@@ -80,6 +81,18 @@ default-groups = ["dev"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["lithic_cli"]
+omit = ["tests/*", "benchmarks/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.",
+    "if TYPE_CHECKING:",
+    "pass",
+]
 
 [build-system]
 requires = ["hatchling>=1.27.0"]
