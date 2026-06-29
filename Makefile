@@ -16,6 +16,6 @@ typecheck:
 	uv run mypy src/lithic/
 
 clean:
-	-rm -rf .pytest_cache .ruff_cache .mypy_cache graphify-out 2>/dev/null || true
+	-rm -rf .pytest_cache .ruff_cache .mypy_cache graphify-out
 
 all: lint test typecheck
