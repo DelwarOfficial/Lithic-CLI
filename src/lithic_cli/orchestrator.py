@@ -13,6 +13,7 @@ from lithic_cli.graph.service import GraphService
 from lithic_cli.policy.response_policy import ResponsePolicy
 from lithic_cli.providers.service import LLMService
 from lithic_cli.tools import git
+from lithic_cli.tracing import trace_operation
 from lithic_cli.tools.fs import resolve_path_within_root
 
 _log = logging.getLogger("lithic_cli.orchestrator")
@@ -66,6 +67,7 @@ class Orchestrator:
             _log.warning("LLM completion failed, returning raw context", exc_info=True)
             return context
 
+    @trace_operation("orchestrator.ask", operation_type="llm_query")
     def ask(self, question: str) -> str:
         if not question.strip():
             return "Please provide a question."
