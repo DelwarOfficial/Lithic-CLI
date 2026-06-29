@@ -55,7 +55,7 @@ class Orchestrator:
         
         # Advanced features
         self.cache = get_cache()
-        self.graph_backend = get_default_backend()
+        self.graph_backend = get_default_backend(self.config.graph_output_dir)
         self.apm = get_apm_collector()
         self.events: list[str] = []
 

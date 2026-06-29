@@ -529,18 +529,18 @@ def create_backend(backend_type: str = "filesystem", **kwargs) -> GraphBackend:
         raise ValueError(f"Unknown backend type: {backend_type}")
 
 
-def get_default_backend() -> GraphBackend:
+def get_default_backend(storage_dir: Path | None = None) -> GraphBackend:
     """Get default graph backend based on environment."""
     backend_type = os.getenv("LITHIC_GRAPH_BACKEND", "filesystem")
     
     try:
-        backend = create_backend(backend_type)
+        backend = create_backend(backend_type, storage_dir=storage_dir)
         if backend.connect():
             return backend
     except Exception as e:
         _log.warning(f"Failed to create {backend_type} backend: {e}")
     
     # Fallback to filesystem
-    filesystem_backend = FileSystemBackend()
+    filesystem_backend = FileSystemBackend(storage_dir)
     filesystem_backend.connect()
     return filesystem_backend
