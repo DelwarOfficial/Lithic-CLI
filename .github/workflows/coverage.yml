@@ -23,7 +23,7 @@ jobs:
         run: uv sync --group dev --frozen
 
       - name: Run tests with coverage
-        run: uv run pytest tests/ --cov=lithic_cli --cov-report=xml --cov-report=term-missing
+        run: uv run pytest tests/ --cov=src/lithic_cli --cov-report=xml --cov-report=term-missing
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

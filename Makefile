@@ -25,6 +25,6 @@ bench:
 	python benchmarks/bench_compression.py
 
 coverage:
-	uv run pytest tests/ --cov=lithic_cli --cov-report=term-missing --cov-report=html
+	uv run pytest tests/ --cov=src/lithic_cli --cov-report=term-missing --cov-report=html
 
 all: lint test typecheck

@@ -15,7 +15,11 @@ wheels/
 .venv/
 venv/
 .env
-.env/
+
+# --- Coverage ---
+.coverage
+coverage.xml
+htmlcov/
 
 # --- Local toolchain ---
 graphify-out/
@@ -30,6 +34,9 @@ graphify-out/
 *~
 .DS_Store
 Thumbs.db
+
+# --- Logs ---
+*.log
 
 # --- Security ---
 *.key

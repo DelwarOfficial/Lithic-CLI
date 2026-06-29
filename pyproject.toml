@@ -83,7 +83,7 @@ default-groups = ["dev"]
 testpaths = ["tests"]
 
 [tool.coverage.run]
-source = ["lithic_cli"]
+source = ["src/lithic_cli"]
 omit = ["tests/*", "benchmarks/*"]
 
 [tool.coverage.report]
