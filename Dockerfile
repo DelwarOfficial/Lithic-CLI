@@ -7,7 +7,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 COPY pyproject.toml uv.lock README.md ./
 COPY src/ ./src/
 
-RUN uv sync --no-dev --frozen
+RUN uv sync --no-dev --frozen --extra mcp
 
 FROM python:3.12-slim as runtime
 
@@ -57,6 +57,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 EXPOSE 8000
 
-CMD ["python3", "-m", "lithic_cli.mcp.server"]
-
-ENTRYPOINT ["uv", "run", "lithic_cli", "mcp", "serve"]
+ENTRYPOINT ["lithic"]
+CMD ["mcp", "serve"]

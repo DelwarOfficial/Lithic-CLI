@@ -24,9 +24,6 @@ spec:
       - name: lithic-cli
         image: lithic-cli:latest
         imagePullPolicy: Always
-        ports:
-        - containerPort: 8000
-          name: mcp
         env:
         - name: LITHIC_GRAPH_DIR
           value: "/app/graphify-out"
@@ -55,17 +52,19 @@ spec:
             memory: "1Gi"
             cpu: "500m"
         livenessProbe:
-          httpGet:
-            path: /health
-            port: 8000
+          exec:
+            command:
+            - python3
+            - /app/healthcheck.py
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
         readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8000
+          exec:
+            command:
+            - python3
+            - /app/healthcheck.py
           initialDelaySeconds: 5
           periodSeconds: 5
           timeoutSeconds: 3
@@ -88,22 +87,6 @@ kind: ServiceAccount
 metadata:
   name: lithic-cli
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: lithic-cli-service
-  labels:
-    app: lithic-cli
-spec:
-  selector:
-    app: lithic-cli
-  ports:
-  - name: mcp
-    port: 8000
-    targetPort: 8000
-    protocol: TCP
-  type: ClusterIP
----
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -113,16 +96,7 @@ spec:
     matchLabels:
       app: lithic-cli
   policyTypes:
-  - Ingress
   - Egress
-  ingress:
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: lithic-clients
-    ports:
-    - protocol: TCP
-      port: 8000
   egress:
   - to: []
     ports:

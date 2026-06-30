@@ -11,6 +11,6 @@ Example projects demonstrating Lithic-CLI usage.
 ```bash
 cd examples/basic-usage
 pip install lithic-cli
-lithic init
+lithic index .
 lithic ask "What does this project do?"
 ```

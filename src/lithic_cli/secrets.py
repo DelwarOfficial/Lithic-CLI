@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
+
+_log = logging.getLogger(__name__)
 
 
 class SecretBackend(ABC):
@@ -88,8 +91,9 @@ class VaultSecretBackend(SecretBackend):
             # Vault KV v2 format
             return data.get("data", {}).get("data", {}).get("value")
             
-        except Exception:
+        except Exception as e:
             # Fallback to environment if Vault fails
+            _log.warning(f"Vault secret retrieval failed for key '{key}': {e}. Falling back to environment variable.")
             return os.getenv(key.upper())
     
     def list_secrets(self) -> list[str]:
@@ -108,7 +112,8 @@ class VaultSecretBackend(SecretBackend):
             
             return list(data.get("data", {}).get("keys", []))
             
-        except Exception:
+        except Exception as e:
+            _log.warning(f"Vault secret listing failed: {e}. Returning empty list.")
             return []
 
 

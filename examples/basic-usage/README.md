@@ -6,7 +6,7 @@ A simple Python project to demonstrate Lithic-CLI features.
 
 ```bash
 pip install lithic-cli
-lithic init
+lithic index .
 ```
 
 ## Usage
@@ -29,8 +29,8 @@ lithic path "Calculator" "greet"
 ## Try It
 
 ```bash
-# Index the project
-lithic index
+# Index the project (if not done in setup)
+lithic index .
 
 # Ask questions
 lithic ask "What classes are defined in main.py?"

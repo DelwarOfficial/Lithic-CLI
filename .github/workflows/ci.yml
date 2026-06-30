@@ -40,8 +40,8 @@ jobs:
         run: uv sync --group dev --frozen
       - name: Test imports
         run: uv run python -c "from lithic_cli.orchestrator import Orchestrator; print('Import successful')"
-      - name: Run basic tests
-        run: uv run python -m pytest tests/test_basic.py -v || echo "Tests completed"
+      - name: Run tests
+        run: uv run python -m pytest tests/ -v
 
   test-extras:
     runs-on: ubuntu-latest
@@ -57,5 +57,5 @@ jobs:
         run: uv sync --group dev --extra headroom --frozen
       - name: Test with extras
         run: uv run python -c "from lithic_cli.orchestrator import Orchestrator; print('Import successful with extras')"
-      - name: Run basic tests with extras  
-        run: uv run python -m pytest tests/test_basic.py -v || echo "Tests completed"
+      - name: Run tests with extras
+        run: uv run python -m pytest tests/ -v
