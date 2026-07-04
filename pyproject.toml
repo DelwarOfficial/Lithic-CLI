@@ -11,7 +11,7 @@ dependencies = [
     "click==8.1.7",
     "graphifyy==0.8.49",
     "httpx==0.28.1",
-    "python-dotenv==1.0.1",
+    "python-dotenv==1.2.2",
     "pydantic>=2.10.3",
     "pyyaml==6.0.2",
     "rich==13.9.4",
