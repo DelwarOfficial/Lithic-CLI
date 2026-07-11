@@ -20,7 +20,7 @@ dependencies = [
 
 [project.optional-dependencies]
 headroom = ["headroom-ai[proxy,code,mcp,relevance]==0.27.0"]
-llm = ["anthropic==0.112.0", "openai==2.44.0"]
+llm = ["anthropic==0.112.0", "openai==2.45.0"]
 mcp = ["mcp==1.28.1"]
 tracing = ["opentelemetry-api>=1.26.0", "opentelemetry-sdk>=1.26.0"]
 redis = ["redis>=5.0.0"]
